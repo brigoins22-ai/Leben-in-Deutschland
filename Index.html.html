@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Leben in DE">
+<title>Leben in Deutschland — Lernkarten</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #f0d080;
+    --dark: #1a1a2e;
+    --mid: #16213e;
+    --card: #0f3460;
+    --text: #e8e0d0;
+    --muted: #a09880;
+    --green: #4caf82;
+    --red: #e05c5c;
+    --blue: #5b9bd5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Source Sans 3', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--mid), var(--dark));
+    border-bottom: 2px solid var(--gold);
+    padding: 14px 16px 10px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+  }
+  .header-sub {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  /* NAV TABS */
+  .tabs {
+    display: flex;
+    background: var(--mid);
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  .tab {
+    flex: 1;
+    padding: 10px 4px;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .tab.active {
+    color: var(--gold);
+    border-bottom: 2px solid var(--gold);
+  }
+  /* PROGRESS */
+  .progress-bar-wrap {
+    background: var(--mid);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .progress-text {
+    font-size: 0.72rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  /* SCREENS */
+  .screen { display: none; padding: 16px; }
+  .screen.active { display: block; }
+
+  /* FILTER BAR */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(201,168,76,0.3);
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+  .filter-btn.active {
+    background: var(--gold);
+    color: var(--dark);
+    border-color: var(--gold);
+  }
+
+  /* QUESTION CARD */
+  .q-card {
+    background: linear-gradient(145deg, var(--card), #0a2a50);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  .q-number {
+    font-size: 0.68rem;
+    color: var(--gold);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .q-category-tag {
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 8px;
+    padding: 2px 8px;
+    font-size: 0.65rem;
+  }
+  .q-text {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text);
+    margin-bottom: 16px;
+    font-weight: 400;
+  }
+  .options-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .option-btn {
+    width: 100%;
+    text-align: left;
+    padding: 11px 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .option-btn:hover:not(:disabled) {
+    background: rgba(201,168,76,0.1);
+    border-color: rgba(201,168,76,0.4);
+  }
+  .option-btn.correct {
+    background: rgba(76,175,130,0.2);
+    border-color: var(--green);
+    color: #a0ffcc;
+  }
+  .option-btn.wrong {
+    background: rgba(224,92,92,0.2);
+    border-color: var(--red);
+    color: #ffaaaa;
+  }
+  .option-btn:disabled { cursor: default; }
+  .option-letter {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .option-btn.correct .option-letter { background: var(--green); color: #fff; }
+  .option-btn.wrong .option-letter { background: var(--red); color: #fff; }
+
+  /* RESULT AREA */
+  .result-area {
+    margin-top: 14px;
+    padding: 14px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 12px;
+    border-left: 3px solid var(--gold);
+    display: none;
+  }
+  .result-area.show { display: block; }
+  .result-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .result-explanation {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: #ccc;
+  }
+  .result-explanation .loading {
+    color: var(--muted);
+    font-style: italic;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+
+  /* ACTION BUTTONS */
+  .action-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 9px 16px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    color: var(--dark);
+  }
+  .btn-ghost {
+    background: rgba(255,255,255,0.06);
+    color: var(--muted);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .btn-vocab {
+    background: rgba(91,155,213,0.2);
+    color: var(--blue);
+    border: 1px solid rgba(91,155,213,0.3);
+  }
+  .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  /* VOCAB PANEL */
+  .vocab-panel {
+    background: rgba(91,155,213,0.08);
+    border: 1px solid rgba(91,155,213,0.3);
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 12px;
+    display: none;
+  }
+  .vocab-panel.show { display: block; }
+  .vocab-panel h4 {
+    color: var(--blue);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .vocab-loading { color: var(--muted); font-style: italic; font-size: 0.88rem; animation: pulse 1.2s infinite; }
+  .vocab-item {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .vocab-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .vocab-de { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+  .vocab-en { font-size: 0.85rem; color: #aaa; margin-top: 1px; }
+
+  /* NAV ARROWS */
+  .nav-arrows {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+  }
+  .arrow-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text);
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .arrow-btn:hover { background: rgba(201,168,76,0.15); border-color: var(--gold); }
+  .arrow-btn:disabled { opacity: 0.3; cursor: default; }
+  .q-counter {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  /* STATS SCREEN */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-box {
+    background: linear-gradient(145deg, var(--card), #0a2a50);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .stat-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+  }
+  .section-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--gold);
+    margin: 16px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  .cat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.85rem;
+  }
+  .cat-row-name { color: var(--text); }
+  .cat-row-score { color: var(--gold); font-weight: 600; }
+
+  /* INSTRUCTIONS */
+  .install-box {
+    background: linear-gradient(145deg, var(--card), #0a2a50);
+    border: 1px solid rgba(91,155,213,0.3);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .install-box h3 {
+    color: var(--blue);
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .install-step {
+    font-size: 0.88rem;
+    color: #ccc;
+    margin: 6px 0;
+    display: flex;
+    gap: 10px;
+  }
+  .step-num {
+    color: var(--gold);
+    font-weight: 700;
+    flex-shrink: 0;
+    width: 20px;
+  }
+
+  /* SEARCH */
+  .search-wrap {
+    position: relative;
+    margin-bottom: 14px;
+  }
+  .search-input {
+    width: 100%;
+    padding: 10px 14px 10px 38px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+  }
+  .search-input::placeholder { color: var(--muted); }
+  .search-input:focus { border-color: rgba(201,168,76,0.4); }
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 1rem;
+  }
+
+  /* BADGE */
+  .badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+  }
+  .badge-correct { background: rgba(76,175,130,0.2); color: var(--green); }
+  .badge-wrong { background: rgba(224,92,92,0.2); color: var(--red); }
+  .badge-unseen { background: rgba(255,255,255,0.08); color: var(--muted); }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🇩🇪 Leben in Deutschland</h1>
+  <div class="header-sub">Lernkarten · Study Cards</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showScreen('study')">📚 Study</div>
+  <div class="tab" onclick="showScreen('browse')">🔍 Browse</div>
+  <div class="tab" onclick="showScreen('stats')">📊 Stats</div>
+  <div class="tab" onclick="showScreen('info')">ℹ️ Info</div>
+</div>
+
+<!-- STUDY SCREEN -->
+<div id="screen-study" class="screen active">
+  <div class="progress-bar-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-text" id="progress-text">0 / 300</div>
+  </div>
+
+  <div style="padding:12px 16px 0;">
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="setMode('all', this)">All</button>
+      <button class="filter-btn" onclick="setMode('wrong', this)">Review Wrong</button>
+      <button class="filter-btn" onclick="setMode('unseen', this)">Unseen Only</button>
+      <button class="filter-btn" onclick="setMode('random', this)">Random 25</button>
+    </div>
+  </div>
+
+  <div style="padding:0 16px 80px;" id="study-area">
+    <!-- Question card injected here -->
+  </div>
+</div>
+
+<!-- BROWSE SCREEN -->
+<div id="screen-browse" class="screen">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" type="text" placeholder="Search questions in German or English..." id="search-input" oninput="renderBrowse()">
+  </div>
+  <div class="filter-bar" id="cat-filters">
+    <button class="filter-btn active" onclick="setCatFilter('all', this)">All</button>
+  </div>
+  <div id="browse-list"></div>
+</div>
+
+<!-- STATS SCREEN -->
+<div id="screen-stats" class="screen">
+  <div class="stats-grid">
+    <div class="stat-box"><div class="stat-num" id="s-correct">0</div><div class="stat-label">Correct</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-wrong">0</div><div class="stat-label">Incorrect</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-seen">0</div><div class="stat-label">Seen</div></div>
+    <div class="stat-box"><div class="stat-num" id="s-pct">—</div><div class="stat-label">Accuracy</div></div>
+  </div>
+  <div class="section-heading">By Category</div>
+  <div id="cat-stats"></div>
+  <br>
+  <button class="btn btn-ghost" style="width:100%;justify-content:center;" onclick="resetProgress()">🔄 Reset All Progress</button>
+</div>
+
+<!-- INFO SCREEN -->
+<div id="screen-info" class="screen">
+  <div class="install-box">
+    <h3>📱 Save to iPhone Home Screen</h3>
+    <div class="install-step"><span class="step-num">1</span><span>Open this page in <strong>Safari</strong> (not Chrome)</span></div>
+    <div class="install-step"><span class="step-num">2</span><span>Tap the <strong>Share</strong> button (box with arrow at the bottom)</span></div>
+    <div class="install-step"><span class="step-num">3</span><span>Scroll down and tap <strong>"Add to Home Screen"</strong></span></div>
+    <div class="install-step"><span class="step-num">4</span><span>Tap <strong>Add</strong> — the app appears on your home screen!</span></div>
+  </div>
+  <div class="install-box">
+    <h3>🤖 AI-Powered Features</h3>
+    <div class="install-step"><span class="step-num">✓</span><span>Answer explanations in English via Claude AI</span></div>
+    <div class="install-step"><span class="step-num">✓</span><span>Vocabulary help for key German words</span></div>
+    <div class="install-step"><span class="step-num">✓</span><span>Context and background for each question</span></div>
+    <div style="margin-top:10px;font-size:0.8rem;color:var(--muted);">Requires internet connection for AI features. Progress is saved locally on your device.</div>
+  </div>
+  <div class="install-box">
+    <h3>📋 About the Test</h3>
+    <div style="font-size:0.88rem;color:#ccc;line-height:1.6;">
+      The <em>Leben in Deutschland</em> test (and <em>Einbürgerungstest</em>) consists of <strong>310 questions</strong> total — 300 national + 10 state-specific. On the actual exam you answer 33 questions in 60 minutes. You need <strong>17 correct</strong> (about 50%) to pass. Questions cover German democracy, law, society, history, and daily life.
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// ALL 300 QUESTIONS
+// ============================================================
+const QUESTIONS = [
+  // CATEGORY: Demokratie & Grundrechte
+  {id:1,cat:"Demokratie & Grundrechte",q:"In Deutschland dürfen Menschen offen etwas gegen die Regierung sagen, weil …",opts:["hier Religionsfreiheit gilt.","die Menschen Steuern zahlen.","hier Meinungsfreiheit gilt.","die Mehrheit das bestimmt hat."],a:2},
+  {id:2,cat:"Demokratie & Grundrechte",q:"Was bedeutet \"Volkssouveränität\"?",opts:["Alle Staatsgewalt geht vom Bundesverfassungsgericht aus.","Alle Staatsgewalt geht vom Volk aus.","Der Staat hat immer Recht.","Es gibt nur rechte Parteien."],a:1},
+  {id:3,cat:"Demokratie & Grundrechte",q:"Deutschland ist ein Rechtsstaat. Was ist damit gemeint?",opts:["Der Staat muss sich nicht an die Gesetze halten.","Nur Deutsche müssen die Gesetze befolgen.","Alle Einwohner und der Staat müssen sich an die Gesetze halten.","Die Gerichte machen die Gesetze."],a:2},
+  {id:4,cat:"Demokratie & Grundrechte",q:"Wahlen in Deutschland sind frei. Was bedeutet das?",opts:["Man darf Geld annehmen, wenn man dafür einen bestimmten Kandidaten wählt.","Nur Personen, die noch nie im Gefängnis waren, dürfen wählen.","Der Wähler darf bei der Wahl weder beeinflusst noch zu einer bestimmten Wahl gezwungen werden.","Alle wahlberechtigten Personen müssen wählen."],a:2},
+  {id:5,cat:"Demokratie & Grundrechte",q:"Die Würde des Menschen ist unantastbar. Was bedeutet das in Deutschland?",opts:["Alle sollen gleich viel Geld haben.","Jeder Mensch muss arbeiten.","Alle Menschen werden in Deutschland gleich und respektvoll behandelt.","Jeder darf tun und lassen, was er will."],a:2},
+  {id:6,cat:"Demokratie & Grundrechte",q:"Eine Partei im Deutschen Bundestag will die Pressefreiheit abschaffen. Ist das möglich?",opts:["Ja, wenn mehr als die Hälfte der Abgeordneten dafür sind.","Ja, wenn der Bundespräsident zustimmt.","Nein, denn die Pressefreiheit ist ein Grundrecht und kann nicht abgeschafft werden.","Nein, denn dafür wäre eine Volksabstimmung nötig."],a:2},
+  {id:7,cat:"Demokratie & Grundrechte",q:"Was ist das Grundgesetz?",opts:["Die Verfassung Deutschlands.","Ein Schulbuch für Staatskunde.","Ein Gesetz für Ausländer in Deutschland.","Ein Buch mit deutschen Bräuchen."],a:0},
+  {id:8,cat:"Demokratie & Grundrechte",q:"Was garantiert die Religionsfreiheit in Deutschland?",opts:["Alle müssen einer Kirche angehören.","Jeder darf seine Religion frei wählen und ausüben oder keine Religion haben.","Der Staat bestimmt, welche Religionen erlaubt sind.","Nur christliche Religionen sind in Deutschland erlaubt."],a:1},
+  {id:9,cat:"Demokratie & Grundrechte",q:"Welches Grundrecht gilt für alle Menschen in Deutschland — nicht nur für Deutsche?",opts:["Das Wahlrecht.","Das Recht auf Asyl.","Die Menschenwürde.","Das Recht auf deutschen Pass."],a:2},
+  {id:10,cat:"Demokratie & Grundrechte",q:"Was versteht man unter dem Prinzip der Gewaltenteilung?",opts:["Es ist verboten, Gewalt einzusetzen.","Legislative, Exekutive und Judikative sind getrennte Gewalten, um Machtmissbrauch zu verhindern.","Die Polizei darf keine Waffen tragen.","Nur das Militär darf Gewalt anwenden."],a:1},
+  {id:11,cat:"Demokratie & Grundrechte",q:"Welche drei staatlichen Gewalten gibt es in Deutschland?",opts:["Bundestag, Bundesrat, Bundeskanzler.","Legislative, Exekutive, Judikative.","Polizei, Militär, Geheimdienst.","Gemeinden, Länder, Bund."],a:1},
+  {id:12,cat:"Demokratie & Grundrechte",q:"Was bedeutet \"Demokratie\"?",opts:["Herrschaft der Kirche.","Herrschaft des Königs.","Herrschaft des Volkes.","Herrschaft des Militärs."],a:2},
+  {id:13,cat:"Demokratie & Grundrechte",q:"Welches Zeichen steht für die Freiheit der Deutschen?",opts:["Der Reichsadler.","Die Berliner Mauer.","Das Brandenburger Tor.","Der Kölner Dom."],a:2},
+  {id:14,cat:"Demokratie & Grundrechte",q:"In Deutschland gibt es das Prinzip der Pressefreiheit. Was bedeutet das?",opts:["Zeitungen sind kostenlos.","Journalisten dürfen frei und unzensiert berichten.","Der Staat kontrolliert alle Medien.","Nur staatliche Medien dürfen berichten."],a:1},
+  {id:15,cat:"Demokratie & Grundrechte",q:"Was bedeutet \"Versammlungsfreiheit\"?",opts:["Alle müssen an staatlichen Versammlungen teilnehmen.","Menschen dürfen sich friedlich ohne Erlaubnis versammeln.","Versammlungen müssen polizeilich begleitet werden.","Nur politische Parteien dürfen sich versammeln."],a:1},
+
+  // CATEGORY: Bundestag & Bundesregierung
+  {id:16,cat:"Bundestag & Bundesregierung",q:"Welche Aufgabe hat der Deutsche Bundestag?",opts:["Er wählt den Bundespräsidenten direkt.","Er macht die Bundesgesetze und kontrolliert die Bundesregierung.","Er regiert Deutschland allein.","Er ist zuständig für die Außenpolitik."],a:1},
+  {id:17,cat:"Bundestag & Bundesregierung",q:"Wie heißt das deutsche Parlament?",opts:["Reichstag.","Landtag.","Bundestag.","Volkskammer."],a:2},
+  {id:18,cat:"Bundestag & Bundesregierung",q:"Wer wählt den Bundeskanzler?",opts:["Das Volk direkt.","Der Bundespräsident allein.","Der Bundestag.","Der Bundesrat."],a:2},
+  {id:19,cat:"Bundestag & Bundesregierung",q:"Was ist die Aufgabe des Bundeskanzlers/der Bundeskanzlerin?",opts:["Die Bundesgesetze zu unterschreiben.","Die Richtlinien der Politik zu bestimmen und die Bundesminister zu führen.","Das Parlament aufzulösen.","Die Rechtsprechung zu kontrollieren."],a:1},
+  {id:20,cat:"Bundestag & Bundesregierung",q:"Wer ist das Staatsoberhaupt in Deutschland?",opts:["Der Bundeskanzler.","Der Bundestagspräsident.","Der Bundespräsident.","Der Bundesratspräsident."],a:2},
+  {id:21,cat:"Bundestag & Bundesregierung",q:"Wie wird der Bundespräsident in Deutschland gewählt?",opts:["Direkt vom Volk.","Vom Bundestag allein.","Von der Bundesversammlung.","Vom Bundesrat allein."],a:2},
+  {id:22,cat:"Bundestag & Bundesregierung",q:"Was ist der Bundesrat?",opts:["Das Verfassungsgericht Deutschlands.","Die Vertretung der Bundesländer auf Bundesebene.","Die zweite Kammer, die direkt vom Volk gewählt wird.","Ein Beratergremium des Bundeskanzlers."],a:1},
+  {id:23,cat:"Bundestag & Bundesregierung",q:"Wie lange dauert eine Legislaturperiode des Deutschen Bundestags?",opts:["3 Jahre.","4 Jahre.","5 Jahre.","6 Jahre."],a:1},
+  {id:24,cat:"Bundestag & Bundesregierung",q:"Wer kann in Deutschland Gesetze einbringen?",opts:["Nur der Bundeskanzler.","Nur das Volk durch Volksabstimmungen.","Die Bundesregierung, der Bundestag und der Bundesrat.","Nur der Bundespräsident."],a:2},
+  {id:25,cat:"Bundestag & Bundesregierung",q:"Ab welchem Alter darf man in Deutschland den Bundestag wählen?",opts:["16 Jahre.","17 Jahre.","18 Jahre.","21 Jahre."],a:2},
+  {id:26,cat:"Bundestag & Bundesregierung",q:"Was bedeutet, dass Wahlen in Deutschland \"allgemein\" sind?",opts:["Alle Bürger wählen dieselbe Partei.","Alle Staatsangehörigen ab 18 Jahren dürfen wählen.","Wahlen finden überall auf der Welt statt.","Nur gebildete Menschen dürfen wählen."],a:1},
+  {id:27,cat:"Bundestag & Bundesregierung",q:"Was bedeutet, dass Wahlen \"geheim\" sind?",opts:["Die Ergebnisse werden nicht veröffentlicht.","Niemand erfährt, wen man gewählt hat.","Nur bestimmte Personen wählen.","Die Wahl findet nachts statt."],a:1},
+  {id:28,cat:"Bundestag & Bundesregierung",q:"Was macht das Bundesverfassungsgericht?",opts:["Es macht Bundesgesetze.","Es kontrolliert, ob Gesetze mit dem Grundgesetz vereinbar sind.","Es wählt den Bundespräsidenten.","Es regiert Deutschland im Notfall."],a:1},
+  {id:29,cat:"Bundestag & Bundesregierung",q:"Wo sitzt das Bundesverfassungsgericht?",opts:["Berlin.","München.","Karlsruhe.","Frankfurt am Main."],a:2},
+  {id:30,cat:"Bundestag & Bundesregierung",q:"Was ist eine Koalitionsregierung?",opts:["Eine Regierung, die aus einer Partei besteht.","Eine Regierung, die aus mindestens zwei Parteien zusammengesetzt ist.","Eine Regierung ohne Parlament.","Eine Notstandsregierung."],a:1},
+
+  // CATEGORY: Bundesländer & Föderalismus
+  {id:31,cat:"Bundesländer & Föderalismus",q:"Aus wie vielen Bundesländern besteht die Bundesrepublik Deutschland?",opts:["14","15","16","17"],a:2},
+  {id:32,cat:"Bundesländer & Föderalismus",q:"Welches ist die Bundeshauptstadt Deutschlands?",opts:["Hamburg.","München.","Frankfurt.","Berlin."],a:3},
+  {id:33,cat:"Bundesländer & Föderalismus",q:"Was ist ein Bundesland?",opts:["Eine Stadt in Deutschland.","Ein Teil des deutschen Staatsgebiets mit eigener Regierung und eigenem Parlament.","Ein Bezirk einer deutschen Stadt.","Ein Bundesministerium."],a:1},
+  {id:34,cat:"Bundesländer & Föderalismus",q:"Wie heißt das Parlament in einem deutschen Bundesland?",opts:["Bundestag.","Volksrat.","Landtag.","Bundesrat."],a:2},
+  {id:35,cat:"Bundesländer & Föderalismus",q:"Welche Bereiche regeln die Bundesländer selbst?",opts:["Die Außenpolitik.","Unter anderem Schule, Polizei und Kultur.","Die Verteidigung.","Die Währungspolitik."],a:1},
+  {id:36,cat:"Bundesländer & Föderalismus",q:"Was ist ein Stadtstaat in Deutschland?",opts:["Eine Stadt, die gleichzeitig ein Bundesland ist.","Eine Stadt mit mehr als einer Million Einwohnern.","Eine Stadt mit eigenem Polizeigesetz.","Eine Stadt ohne Bürgermeister."],a:0},
+  {id:37,cat:"Bundesländer & Föderalismus",q:"Welche deutschen Städte sind gleichzeitig Bundesländer (Stadtstaaten)?",opts:["Berlin, München, Hamburg.","Berlin, Hamburg, Bremen.","Frankfurt, Köln, Stuttgart.","Berlin, Düsseldorf, Dresden."],a:1},
+  {id:38,cat:"Bundesländer & Föderalismus",q:"Was ist der Föderalismus?",opts:["Ein politisches System, in dem alle Macht beim Zentralstaat liegt.","Ein System, bei dem Macht auf Bund und Länder verteilt ist.","Eine Regierungsform ohne Parlament.","Ein wirtschaftliches System."],a:1},
+
+  // CATEGORY: Geschichte Deutschlands
+  {id:39,cat:"Geschichte Deutschlands",q:"Wann wurde die Bundesrepublik Deutschland gegründet?",opts:["1945","1949","1953","1955"],a:1},
+  {id:40,cat:"Geschichte Deutschlands",q:"Wann fiel die Berliner Mauer?",opts:["1987","1988","1989","1990"],a:2},
+  {id:41,cat:"Geschichte Deutschlands",q:"Wann wurde Deutschland wiedervereinigt?",opts:["1989","1990","1991","1992"],a:1},
+  {id:42,cat:"Geschichte Deutschlands",q:"In welchem Jahr endete der Zweite Weltkrieg?",opts:["1943","1944","1945","1946"],a:2},
+  {id:43,cat:"Geschichte Deutschlands",q:"Was war die DDR?",opts:["Ein Teil Westdeutschlands.","Die Deutsche Demokratische Republik, der sozialistische Staat in Ostdeutschland.","Ein Bundesland Deutschlands.","Ein Bündnis europäischer Staaten."],a:1},
+  {id:44,cat:"Geschichte Deutschlands",q:"Was war die Weimarer Republik?",opts:["Das Kaiserreich.","Die erste parlamentarische Demokratie Deutschlands (1919–1933).","Die DDR.","Das Dritte Reich."],a:1},
+  {id:45,cat:"Geschichte Deutschlands",q:"Wann wurde das Grundgesetz verabschiedet?",opts:["1945","1948","1949","1951"],a:2},
+  {id:46,cat:"Geschichte Deutschlands",q:"Was war der Holocaust?",opts:["Ein Krieg zwischen Deutschland und Russland.","Der systematische Massenmord an Juden und anderen Gruppen durch die Nationalsozialisten.","Eine Hungersnot in Deutschland nach dem Krieg.","Ein Arbeitsprogramm des Dritten Reiches."],a:1},
+  {id:47,cat:"Geschichte Deutschlands",q:"Wer war Adolf Hitler?",opts:["Der erste Bundespräsident Deutschlands.","Der Führer des nationalsozialistischen Regimes von 1933 bis 1945.","Ein Kaiser des Deutschen Reiches.","Der erste Bundeskanzler der BRD."],a:1},
+  {id:48,cat:"Geschichte Deutschlands",q:"Was bedeutet \"8. Mai\" für Deutschland?",opts:["Tag der deutschen Einheit.","Tag des Mauerfalls.","Tag der Befreiung vom Nationalsozialismus (1945).","Gründung der Bundesrepublik."],a:2},
+  {id:49,cat:"Geschichte Deutschlands",q:"Wann begann der Erste Weltkrieg?",opts:["1912","1914","1916","1918"],a:1},
+  {id:50,cat:"Geschichte Deutschlands",q:"Was war der Nationalsozialismus?",opts:["Eine demokratische Bewegung.","Eine totalitäre, rassistische und antisemitische Ideologie unter Adolf Hitler.","Eine kommunistische Bewegung.","Eine religiöse Bewegung."],a:1},
+
+  // CATEGORY: Gesellschaft & Alltagsleben
+  {id:51,cat:"Gesellschaft & Alltagsleben",q:"Der deutsche Staat hat viele Aufgaben. Welche Aufgabe gehört nicht dazu?",opts:["Er zahlt Kindergeld.","Er unterstützt Museen.","Er fördert Sportlerinnen und Sportler.","Er bezahlt für alle Staatsangehörigen Urlaubsreisen."],a:3},
+  {id:52,cat:"Gesellschaft & Alltagsleben",q:"In Deutschland können Eltern bis zum 14. Lebensjahr ihres Kindes entscheiden, ob es am … teilnimmt.",opts:["Politikunterricht","Religionsunterricht","Mathematikunterricht","Sportunterricht"],a:1},
+  {id:53,cat:"Gesellschaft & Alltagsleben",q:"Was ist das Kindergeld in Deutschland?",opts:["Ein Gutschein für Spielzeug.","Eine staatliche Zahlung an Eltern zur Unterstützung für ihre Kinder.","Eine Schulgebühr.","Geld für Kinder, die arbeiten."],a:1},
+  {id:54,cat:"Gesellschaft & Alltagsleben",q:"Was ist die Krankenversicherungspflicht in Deutschland?",opts:["Jeder Arzt muss eine Praxis haben.","Alle in Deutschland lebenden Personen müssen krankenversichert sein.","Nur Arbeitnehmer müssen versichert sein.","Krankenversicherung ist freiwillig."],a:1},
+  {id:55,cat:"Gesellschaft & Alltagsleben",q:"Was versteht man unter dem Sozialstaatsprinzip in Deutschland?",opts:["Alle Bürger sind gleich reich.","Der Staat sorgt für soziale Sicherheit und hilft Benachteiligten.","Es gibt keine privaten Unternehmen.","Alle Betriebe gehören dem Staat."],a:1},
+  {id:56,cat:"Gesellschaft & Alltagsleben",q:"Wie viele Stunden beträgt die gesetzliche Regelarbeitszeit in Deutschland pro Woche für Erwachsene?",opts:["35","38","40","48"],a:3},
+  {id:57,cat:"Gesellschaft & Alltagsleben",q:"Was ist das \"duale Ausbildungssystem\" in Deutschland?",opts:["Ein System mit zwei Schulen in jeder Stadt.","Berufsausbildung in Betrieb und Berufsschule kombiniert.","Ein Universitätssystem mit zwei Abschlüssen.","Ein Schulsystem für Ausländer."],a:1},
+  {id:58,cat:"Gesellschaft & Alltagsleben",q:"Was ist das Abitur?",opts:["Ein Handwerksgesellen-Abschluss.","Die allgemeine Hochschulreife.","Ein Meisterbrief.","Ein Berufsschulabschluss."],a:1},
+  {id:59,cat:"Gesellschaft & Alltagsleben",q:"Was bedeutet Gleichberechtigung von Mann und Frau in Deutschland?",opts:["Frauen müssen dieselben Jobs machen wie Männer.","Männer und Frauen haben gleiche Rechte und sollen gleich behandelt werden.","Männer haben mehr Rechte als Frauen.","Frauen dürfen nicht arbeiten."],a:1},
+  {id:60,cat:"Gesellschaft & Alltagsleben",q:"Wer hat in Deutschland das Sorgerecht für ein Kind normalerweise?",opts:["Der Staat.","Die Schule.","Die Eltern.","Die Großeltern."],a:2},
+
+  // CATEGORY: Rechte & Gesetze
+  {id:61,cat:"Rechte & Gesetze",q:"Was ist das Asylrecht in Deutschland?",opts:["Das Recht, in Deutschland kostenlos zu studieren.","Das Recht für politisch Verfolgte, in Deutschland Schutz zu suchen.","Das Recht, ohne Visum einzureisen.","Das Recht auf sofortigen deutschen Pass."],a:1},
+  {id:62,cat:"Rechte & Gesetze",q:"Was bedeutet das Diskriminierungsverbot?",opts:["Alle Sportarten sind in Deutschland erlaubt.","Menschen dürfen nicht wegen Herkunft, Geschlecht, Religion usw. benachteiligt werden.","Nur Deutsche dürfen in bestimmten Berufen arbeiten.","Ausländer dürfen kein Eigentum besitzen."],a:1},
+  {id:63,cat:"Rechte & Gesetze",q:"Was ist Steuerhinterziehung?",opts:["Das Zahlen von zu viel Steuer.","Das absichtliche Nicht-Zahlen oder Falschangaben bei Steuern.","Ein Sonderrabatt beim Finanzamt.","Eine Steuererstattung."],a:1},
+  {id:64,cat:"Rechte & Gesetze",q:"Für welche Straftat können Eltern in Deutschland haftbar gemacht werden, wenn ihre Kinder sie begehen?",opts:["Autofahren ohne Führerschein.","Keine, Eltern haften nie für ihre Kinder.","Sachbeschädigung, wenn Kinder minderjährig und die Eltern aufsichtspflichtig sind.","Steuerhinterziehung."],a:2},
+  {id:65,cat:"Rechte & Gesetze",q:"Was ist das Strafmündigkeitsalter in Deutschland?",opts:["12 Jahre.","14 Jahre.","16 Jahre.","18 Jahre."],a:1},
+  {id:66,cat:"Rechte & Gesetze",q:"Was bedeutet \"Unschuldsvermutung\"?",opts:["Alle Verdächtigen sind unschuldig.","Eine Person gilt als unschuldig, bis ihre Schuld rechtskräftig festgestellt ist.","Polizisten dürfen niemanden verhaften.","Anwälte müssen kostenlos arbeiten."],a:1},
+  {id:67,cat:"Rechte & Gesetze",q:"Hat man in Deutschland das Recht auf einen Anwalt, wenn man verdächtig ist?",opts:["Nein, nur bei schweren Verbrechen.","Ja, immer, auch auf einen kostenfreien, wenn man sich keinen leisten kann.","Nur wenn man Deutscher ist.","Nur bei Zivilrechtsstreitigkeiten."],a:1},
+  {id:68,cat:"Rechte & Gesetze",q:"Was ist eine einstweilige Verfügung?",opts:["Ein dauerhaftes Gerichtsurteil.","Eine schnelle, vorläufige gerichtliche Anordnung.","Ein Steuerformular.","Eine Genehmigung."],a:1},
+  {id:69,cat:"Rechte & Gesetze",q:"Was ist häusliche Gewalt?",opts:["Streitigkeiten zwischen Nachbarn.","Gewalt innerhalb der Familie oder Partnerschaft.","Unfälle im Haushalt.","Lärmbelästigung."],a:1},
+  {id:70,cat:"Rechte & Gesetze",q:"Was ist in Deutschland verboten?",opts:["Das Tragen von Kopftüchern.","Die Verwendung von Nazisymbolen in der Öffentlichkeit.","Das Feiern von ausländischen Feiertagen.","Das Sprechen von Fremdsprachen."],a:1},
+
+  // CATEGORY: Europa & Internationale Politik
+  {id:71,cat:"Europa & Internationale Politik",q:"Wann trat Deutschland der Europäischen Union bei?",opts:["1957 als Gründungsmitglied.","1973.","1989.","1993."],a:0},
+  {id:72,cat:"Europa & Internationale Politik",q:"Was ist der Euro?",opts:["Die Währung nur Deutschlands.","Die Gemeinschaftswährung vieler EU-Staaten.","Eine neue digitale Währung.","Der Vorläufer der D-Mark."],a:1},
+  {id:73,cat:"Europa & Internationale Politik",q:"Wann wurde die Deutsche Mark durch den Euro ersetzt?",opts:["1999 (für Transaktionen) / 2002 (als Bargeld).","1995.","2005.","2010."],a:0},
+  {id:74,cat:"Europa & Internationale Politik",q:"Was ist die NATO?",opts:["Ein europäisches Handelsbündnis.","Ein militärisches Verteidigungsbündnis westlicher Staaten.","Eine internationale Umweltorganisation.","Das europäische Parlament."],a:1},
+  {id:75,cat:"Europa & Internationale Politik",q:"Welche Institution beschließt EU-Gesetze?",opts:["Nur die Europäische Kommission.","Das Europäische Parlament gemeinsam mit dem Rat der EU.","Der Europäische Gerichtshof.","Der Europarat."],a:1},
+  {id:76,cat:"Europa & Internationale Politik",q:"Was ist der Schengen-Raum?",opts:["Eine Freihandelszone.","Ein Bereich, in dem Bürger vieler europäischer Länder ohne Passkontrollen reisen können.","Ein militärisches Bündnis.","Eine Währungsunion."],a:1},
+  {id:77,cat:"Europa & Internationale Politik",q:"Wo hat die Europäische Union ihren Hauptsitz?",opts:["Paris.","London.","Brüssel und Straßburg.","Berlin."],a:2},
+  {id:78,cat:"Europa & Internationale Politik",q:"Was ist die Aufgabe der Vereinten Nationen (UN)?",opts:["Die Verwaltung europäischer Länder.","Die Förderung des internationalen Friedens, der Sicherheit und der Zusammenarbeit.","Die Kontrolle des Welthandels.","Die Vergabe von Entwicklungshilfe ausschließlich."],a:1},
+
+  // CATEGORY: Natur & Umwelt
+  {id:79,cat:"Natur & Umwelt",q:"Was ist der Naturschutz in Deutschland?",opts:["Der Schutz historischer Gebäude.","Die gesetzlich verankerte Bewahrung von Natur und Umwelt.","Ein Freizeitprogramm.","Ein Steuerprogramm."],a:1},
+  {id:80,cat:"Natur & Umwelt",q:"Was ist Recycling?",opts:["Das Verbrennen von Abfall.","Das Wiederverwerten von Materialien, um Ressourcen zu schonen.","Das Deponieren von Müll.","Das Kaufen neuer Produkte."],a:1},
+  {id:81,cat:"Natur & Umwelt",q:"Wofür steht das Kürzel \"BRD\"?",opts:["Bayerische Republik Deutschland.","Bundesrepublik Deutschland.","Bremer Rundfunk Deutschlands.","Bündnis Recht Deutschland."],a:1},
+
+  // CATEGORY: Symbole & Nationalsymbole
+  {id:82,cat:"Symbole & Nationalsymbole",q:"Welche Farben hat die deutsche Nationalflagge?",opts:["Rot, Weiß, Blau.","Schwarz, Rot, Gold.","Grün, Weiß, Rot.","Blau, Gelb, Rot."],a:1},
+  {id:83,cat:"Symbole & Nationalsymbole",q:"Was ist der Nationalfeiertag Deutschlands?",opts:["1. Mai.","17. Juni.","3. Oktober.","9. November."],a:2},
+  {id:84,cat:"Symbole & Nationalsymbole",q:"Was wird am 3. Oktober in Deutschland gefeiert?",opts:["Die Gründung der Bundesrepublik.","Der Tag der Deutschen Einheit (Wiedervereinigung 1990).","Das Ende des Zweiten Weltkriegs.","Der Geburtstag des ersten Bundeskanzlers."],a:1},
+  {id:85,cat:"Symbole & Nationalsymbole",q:"Was ist die Nationalhymne Deutschlands?",opts:["Das Lied der Deutschen (Deutschlandlied, 3. Strophe).","Die Wacht am Rhein.","Ode an die Freude.","Einigkeit und Recht und Freiheit."],a:0},
+  {id:86,cat:"Symbole & Nationalsymbole",q:"Was ist das Wappentier Deutschlands?",opts:["Der Löwe.","Der Adler.","Der Bär.","Der Hirsch."],a:1},
+
+  // CATEGORY: Wirtschaft
+  {id:87,cat:"Wirtschaft",q:"Was ist die soziale Marktwirtschaft?",opts:["Eine Planwirtschaft ohne Privateigentum.","Ein Wirtschaftssystem, das Marktwirtschaft mit sozialer Absicherung verbindet.","Ein System, bei dem der Staat alle Preise bestimmt.","Eine Wirtschaft ohne Steuern."],a:1},
+  {id:88,cat:"Wirtschaft",q:"Was ist die Gewerkschaft?",opts:["Ein Verband von Unternehmern.","Eine Organisation, die die Interessen der Arbeitnehmer vertritt.","Eine staatliche Behörde.","Ein Betriebsrat."],a:1},
+  {id:89,cat:"Wirtschaft",q:"Was ist das Streikrecht in Deutschland?",opts:["Das Recht der Arbeitnehmer, die Arbeit niederzulegen, um bessere Bedingungen zu erkämpfen.","Das Recht, den Arbeitgeber anzuklagen.","Das Recht auf Urlaub.","Das Recht auf Überstundenvergütung."],a:0},
+  {id:90,cat:"Wirtschaft",q:"Was ist die Bundesbank?",opts:["Die Bank für alle Bundesbürger.","Die Zentralbank Deutschlands.","Eine staatliche Sparkasse.","Das Finanzministerium."],a:1},
+
+  // CATEGORY: Religion & Kirche
+  {id:91,cat:"Religion & Kirche",q:"Welche Religionen gibt es in Deutschland?",opts:["Nur Christentum.","Christentum, Islam, Judentum und viele andere.","Nur Christentum und Islam.","Der Staat bestimmt die Religion."],a:1},
+  {id:92,cat:"Religion & Kirche",q:"Was ist die Kirchensteuer in Deutschland?",opts:["Eine Pflichtsteuer für alle.","Eine freiwillige Abgabe an eine Religionsgemeinschaft, die über das Finanzamt eingezogen wird.","Eine staatliche Förderung für Moscheen.","Eine Steuer auf religiöse Bücher."],a:1},
+  {id:93,cat:"Religion & Kirche",q:"Was ist die Trennung von Staat und Kirche?",opts:["Kirchen dürfen keine Gottesdienste abhalten.","Staat und Religionsgemeinschaften sind unabhängig voneinander.","Religion ist in Deutschland verboten.","Der Staat finanziert alle Religionen."],a:1},
+
+  // CATEGORY: Familie & Ehe
+  {id:94,cat:"Familie & Ehe",q:"Was versteht man unter dem Mutterschutz in Deutschland?",opts:["Ein Gesetz, das Müttern verbietet zu arbeiten.","Gesetzlicher Schutz für Schwangere und Mütter im Arbeitsverhältnis.","Finanzielle Unterstützung nur für alleinerziehende Mütter.","Schutz vor Nachbarschaftsstreitigkeiten."],a:1},
+  {id:95,cat:"Familie & Ehe",q:"Was ist das Elterngeld?",opts:["Geld, das Kinder von ihren Eltern erhalten.","Staatliche Leistung für Eltern nach der Geburt eines Kindes.","Steuerabzug für Kinder.","Wohngeld für Familien."],a:1},
+  {id:96,cat:"Familie & Ehe",q:"Darf man in Deutschland gleichgeschlechtliche Ehen schließen?",opts:["Nein, das ist verboten.","Ja, seit 2017 ist die Ehe für alle geöffnet.","Nur in bestimmten Bundesländern.","Nur wenn beide Partner deutsche Staatsbürger sind."],a:1},
+  {id:97,cat:"Familie & Ehe",q:"Was ist das Mindestalter für eine Ehe in Deutschland?",opts:["16 Jahre.","17 Jahre.","18 Jahre.","21 Jahre."],a:2},
+  {id:98,cat:"Familie & Ehe",q:"Was bedeutet \"Schulpflicht\" in Deutschland?",opts:["Alle Kinder müssen eine private Schule besuchen.","Kinder sind verpflichtet, die Schule zu besuchen.","Eltern können selbst über die Schulbildung entscheiden.","Schulen sind freiwillig."],a:1},
+
+  // CATEGORY: Medien & Kommunikation
+  {id:99,cat:"Medien & Kommunikation",q:"Was ist der öffentlich-rechtliche Rundfunk in Deutschland?",opts:["Ein privater Fernsehsender.","Sender wie ARD und ZDF, die durch Rundfunkbeiträge finanziert werden und staatlich unabhängig sind.","Ein staatliches Propagandamedium.","Ein kostenpflichtiger Streamingdienst."],a:1},
+  {id:100,cat:"Medien & Kommunikation",q:"Was ist der Rundfunkbeitrag?",opts:["Eine freiwillige Spende.","Ein monatlicher Pflichtbeitrag aller Haushalte zur Finanzierung des öffentlich-rechtlichen Rundfunks.","Eine Steuer nur für Fernseher-Besitzer.","Ein privater Streaming-Abo."],a:1},
+
+  // More questions covering all topics
+  {id:101,cat:"Demokratie & Grundrechte",q:"Was ist das Petitionsrecht?",opts:["Das Recht, Steuern zu zahlen.","Das Recht, sich mit Bitten oder Beschwerden an den Bundestag oder eine andere Behörde zu wenden.","Das Recht auf Reisefreiheit.","Das Recht auf Bildung."],a:1},
+  {id:102,cat:"Demokratie & Grundrechte",q:"Was ist das Recht auf informationelle Selbstbestimmung?",opts:["Das Recht, Informationen zu löschen.","Das Recht, selbst über die Verwendung eigener personenbezogener Daten zu bestimmen.","Das Recht auf Internetzugang.","Das Recht auf kostenlose Information."],a:1},
+  {id:103,cat:"Bundestag & Bundesregierung",q:"Was ist eine Fünfprozentklausel (Sperrklausel)?",opts:["Eine Partei muss mindestens 5 % Steuern zahlen.","Eine Partei muss mindestens 5 % der Stimmen erhalten, um in den Bundestag einzuziehen.","Nur 5 % der Bevölkerung dürfen wählen.","Eine Partei kann nur 5 % der Sitze bekommen."],a:1},
+  {id:104,cat:"Bundestag & Bundesregierung",q:"Was ist ein konstruktives Misstrauensvotum?",opts:["Ein Vertrauensantrag des Kanzlers.","Der Bundestag kann den Bundeskanzler nur abwählen, wenn er gleichzeitig einen neuen wählt.","Ein Volksbegehren gegen die Regierung.","Eine Wahl des Bundespräsidenten."],a:1},
+  {id:105,cat:"Geschichte Deutschlands",q:"Wann wurde das Kaiserreich gegründet?",opts:["1848","1866","1871","1884"],a:2},
+  {id:106,cat:"Geschichte Deutschlands",q:"Was war der Marshallplan?",opts:["Ein Militärbündnis nach dem Zweiten Weltkrieg.","Ein US-amerikanisches Hilfsprogramm für den Wiederaufbau Westeuropas nach 1945.","Ein Friedensvertrag zwischen Deutschland und Frankreich.","Ein Wirtschaftsplan der DDR."],a:1},
+  {id:107,cat:"Geschichte Deutschlands",q:"Was war der Nürnberger Prozess?",opts:["Ein Handelsvertrag zwischen Nürnberg und Bayern.","Kriegsverbrecherprozesse gegen NS-Führer nach dem Zweiten Weltkrieg.","Eine Sportveranstaltung.","Ein Kirchenprozess."],a:1},
+  {id:108,cat:"Geschichte Deutschlands",q:"Was war die \"Stunde Null\"?",opts:["Mitternacht am 31. Dezember.","Der symbolische Neuanfang Deutschlands nach dem Zweiten Weltkrieg im Jahr 1945.","Der Beginn des Zweiten Weltkrieges.","Die Ausrufung der Weimarer Republik."],a:1},
+  {id:109,cat:"Gesellschaft & Alltagsleben",q:"Was ist das \"Ehrenamt\" in Deutschland?",opts:["Ein bezahlter Staatsjob.","Freiwillige, unbezahlte Tätigkeit für die Gesellschaft.","Ein staatlicher Orden.","Ein Auszeichnungsprogramm."],a:1},
+  {id:110,cat:"Gesellschaft & Alltagsleben",q:"Was ist der Mindestlohn in Deutschland?",opts:["Ein Mindestgehalt für Staatsbeamte.","Ein gesetzlich festgelegter Mindeststundenlohn für alle Arbeitnehmer.","Das Mindesteinkommen für Rentner.","Eine Obergrenze für Löhne."],a:1},
+  {id:111,cat:"Gesellschaft & Alltagsleben",q:"Was ist das Wohngeld?",opts:["Ein Kredit für Hauskäufer.","Eine staatliche Unterstützung für Personen mit geringem Einkommen bei den Wohnkosten.","Eine Miete für Sozialwohnungen.","Eine Steuer auf Grundstücke."],a:1},
+  {id:112,cat:"Rechte & Gesetze",q:"Welches Gesetz schützt Daten in Deutschland und Europa?",opts:["Das Bürgerliche Gesetzbuch (BGB).","Die Datenschutz-Grundverordnung (DSGVO).","Das Handelsgesetzbuch (HGB).","Das Grundgesetz allein."],a:1},
+  {id:113,cat:"Rechte & Gesetze",q:"Was ist das Ausländerrecht (Aufenthaltsrecht)?",opts:["Regeln für das Reisen ins Ausland.","Gesetze, die die Einreise, den Aufenthalt und die Ausweisung von Ausländern in Deutschland regeln.","Das Recht auf deutschen Pass nach 5 Jahren.","Gesetze über internationale Verträge."],a:1},
+  {id:114,cat:"Rechte & Gesetze",q:"Darf man in Deutschland für dieselbe Tat zweimal verurteilt werden?",opts:["Ja, wenn neue Beweise gefunden werden.","Nein, der Grundsatz \"ne bis in idem\" verbietet dies.","Ja, bei schweren Verbrechen.","Das entscheidet der Richter."],a:1},
+  {id:115,cat:"Europa & Internationale Politik",q:"Was ist das Europäische Parlament?",opts:["Die Regierung der EU.","Das direkt von den EU-Bürgern gewählte Parlament der Europäischen Union.","Der Rat der EU-Mitgliedstaaten.","Ein Beratungsgremium."],a:1},
+  {id:116,cat:"Europa & Internationale Politik",q:"Wie viele Mitgliedsstaaten hat die EU ungefähr (Stand 2024)?",opts:["19","21","27","32"],a:2},
+  {id:117,cat:"Symbole & Nationalsymbole",q:"Was symbolisieren die Farben der deutschen Flagge historisch?",opts:["Das Meer, den Himmel und die Sonne.","Schwarz (Tugend), Rot (Mut/Blut), Gold (Weizen/Reichtum) — Farben der Freiheitsbewegung.","Die drei deutschen Kaiserreiche.","Die drei Teile des Bundesrates."],a:1},
+  {id:118,cat:"Wirtschaft",q:"Was ist die Europäische Zentralbank (EZB)?",opts:["Die Weltbank.","Die Zentralbank der Eurozone, die die Geldpolitik für den Euro steuert.","Das Finanzministerium der EU.","Eine Privatbank."],a:1},
+  {id:119,cat:"Wirtschaft",q:"Was ist die Mehrwertsteuer (MwSt.)?",opts:["Eine Steuer auf Einkommen.","Eine Verbrauchssteuer, die auf Waren und Dienstleistungen erhoben wird.","Eine Steuer auf Immobilien.","Eine Erbschaftssteuer."],a:1},
+  {id:120,cat:"Wirtschaft",q:"Was ist das Bruttoinlandsprodukt (BIP)?",opts:["Das Gesamtvermögen aller Deutschen.","Der Gesamtwert aller in Deutschland produzierten Waren und Dienstleistungen in einem Jahr.","Die Staatsverschuldung.","Das Budget des Bundes."],a:1},
+
+  // Questions 121-200
+  {id:121,cat:"Demokratie & Grundrechte",q:"Was ist das aktive Wahlrecht?",opts:["Das Recht, sich zur Wahl aufzustellen.","Das Recht, bei einer Wahl abzustimmen.","Das Recht, Wahlprogramme zu schreiben.","Das Recht, eine Partei zu gründen."],a:1},
+  {id:122,cat:"Demokratie & Grundrechte",q:"Was ist das passive Wahlrecht?",opts:["Das Recht, zu wählen.","Das Recht, sich zur Wahl aufzustellen.","Das Recht, Wahlbeobachter zu sein.","Das Recht auf Briefwahl."],a:1},
+  {id:123,cat:"Demokratie & Grundrechte",q:"Was ist eine Demonstration?",opts:["Eine wissenschaftliche Präsentation.","Eine öffentliche Versammlung, um eine Meinung oder Forderung auszudrücken.","Eine Schulveranstaltung.","Ein Gerichtsverfahren."],a:1},
+  {id:124,cat:"Bundestag & Bundesregierung",q:"Was ist eine Bundesministerin/ein Bundesminister?",opts:["Ein Mitglied des Bundesrates.","Leiterin/Leiter eines Bundesministeriums und Mitglied der Bundesregierung.","Ein Abgeordneter des Bundestages.","Eine Beamtin/ein Beamter."],a:1},
+  {id:125,cat:"Bundestag & Bundesregierung",q:"Was ist der Bundeshaushalt?",opts:["Das Gebäude des Bundestages.","Der jährliche Plan über Einnahmen und Ausgaben des Bundes.","Das Vermögen des Bundespräsidenten.","Die Steuereinnahmen eines Bundeslandes."],a:1},
+  {id:126,cat:"Bundesländer & Föderalismus",q:"Welches Bundesland ist flächenmäßig das größte?",opts:["Nordrhein-Westfalen.","Bayern.","Niedersachsen.","Brandenburg."],a:1},
+  {id:127,cat:"Bundesländer & Föderalismus",q:"Welches Bundesland hat die meisten Einwohner?",opts:["Bayern.","Baden-Württemberg.","Nordrhein-Westfalen.","Hessen."],a:2},
+  {id:128,cat:"Geschichte Deutschlands",q:"Welchen Titel trug das Oberhaupt Deutschlands im Kaiserreich (1871–1918)?",opts:["König.","Kaiser.","Reichspräsident.","Führer."],a:1},
+  {id:129,cat:"Geschichte Deutschlands",q:"Wann wurde die Berliner Mauer gebaut?",opts:["1949","1955","1961","1968"],a:2},
+  {id:130,cat:"Geschichte Deutschlands",q:"Was war die Reichspogromnacht (Kristallnacht)?",opts:["Ein Fest im Kaiserreich.","Pogrome gegen jüdische Einrichtungen im November 1938.","Ein Aufstand gegen das NS-Regime.","Eine Bombenacht im Zweiten Weltkrieg."],a:1},
+  {id:131,cat:"Gesellschaft & Alltagsleben",q:"Was ist das Schulsystem in Deutschland?",opts:["Einheitlich für ganz Deutschland.","In der Verantwortung der Bundesländer und daher unterschiedlich.","Vom Bund vollständig geregelt.","Privatschulen sind die Norm."],a:1},
+  {id:132,cat:"Gesellschaft & Alltagsleben",q:"Was ist eine Berufsschule?",opts:["Eine Schule nur für Hochschulabsolventen.","Eine Schule für Auszubildende, die begleitend zur Berufsausbildung besucht wird.","Ein privates Weiterbildungsinstitut.","Eine Schule für Umschüler."],a:1},
+  {id:133,cat:"Gesellschaft & Alltagsleben",q:"Was ist das Jugendschutzgesetz?",opts:["Ein Gesetz zum Schutz der Natur.","Gesetze zum Schutz von Kindern und Jugendlichen vor schädlichen Einflüssen.","Ein Gesetz für Jugendstrafrecht.","Ein Gesetz für Jugendclubs."],a:1},
+  {id:134,cat:"Rechte & Gesetze",q:"Ab welchem Alter gilt man in Deutschland als volljährig?",opts:["16 Jahre.","17 Jahre.","18 Jahre.","21 Jahre."],a:2},
+  {id:135,cat:"Rechte & Gesetze",q:"Was ist das Erbrecht in Deutschland?",opts:["Das Recht, in Deutschland zu sterben.","Die gesetzlichen Regeln, wer nach dem Tod einer Person deren Vermögen erhält.","Das Recht auf staatliche Erbschaftssteuer.","Das Recht auf Wohnsitz."],a:1},
+  {id:136,cat:"Rechte & Gesetze",q:"Was ist das Bürgerliche Gesetzbuch (BGB)?",opts:["Die Verfassung Deutschlands.","Das zentrale Gesetzbuch für das Privatrecht in Deutschland.","Ein Steuergesetz.","Ein Gesetz für Beamte."],a:1},
+  {id:137,cat:"Europa & Internationale Politik",q:"Was ist der Europäische Gerichtshof (EuGH)?",opts:["Das Verfassungsgericht Deutschlands.","Das höchste Gericht der EU, das EU-Recht auslegt.","Das Menschenrechtsgericht.","Das Internationale Strafgericht."],a:1},
+  {id:138,cat:"Europa & Internationale Politik",q:"Was ist der Europäische Gerichtshof für Menschenrechte?",opts:["Ein Gericht der EU.","Ein Gericht des Europarats, das die Europäische Menschenrechtskonvention schützt.","Das höchste Gericht in Europa.","Ein Strafgericht."],a:1},
+  {id:139,cat:"Natur & Umwelt",q:"Was ist der Klimaschutz?",opts:["Der Schutz historischer Klimaanlagen.","Maßnahmen zur Verringerung von Treibhausgasen und zum Schutz des Klimas.","Ein Wetterdienst.","Schutz vor extremen Temperaturen."],a:1},
+  {id:140,cat:"Natur & Umwelt",q:"Was ist erneuerbare Energie?",opts:["Energie aus fossilen Brennstoffen.","Energie aus natürlichen, sich erneuernden Quellen wie Wind, Sonne und Wasser.","Atomenergie.","Energie aus Kohle."],a:1},
+  {id:141,cat:"Religion & Kirche",q:"Was ist das Kirchenrecht?",opts:["Das deutsche Strafrecht für Priester.","Die eigene Rechtsordnung einer Religionsgemeinschaft.","Das Recht zum Besuch von Kirchen.","Das Recht auf Bau von Kirchen."],a:1},
+  {id:142,cat:"Familie & Ehe",q:"Was ist das Kindschaftsrecht?",opts:["Steuerrecht für Kinder.","Rechtliche Regeln über die Beziehung zwischen Eltern und Kindern (Sorge, Umgang).","Schulrecht.","Erbrecht für Minderjährige."],a:1},
+  {id:143,cat:"Familie & Ehe",q:"Was bedeutet \"gemeinsames Sorgerecht\"?",opts:["Beide Elternteile haben gleiche Rechte und Pflichten gegenüber dem Kind.","Das Jugendamt übernimmt die Verantwortung.","Nur die Mutter hat das Sorgerecht.","Das Kind entscheidet selbst."],a:0},
+  {id:144,cat:"Medien & Kommunikation",q:"Was ist Zensur?",opts:["Die Beurteilung von Filmen.","Die staatliche Kontrolle und Unterdrückung von Medieninhalten.","Eine Altersfreigabe für Medien.","Ein Bewertungssystem."],a:1},
+  {id:145,cat:"Demokratie & Grundrechte",q:"Was verbietet das Diskriminierungsverbot nach dem Grundgesetz?",opts:["Das Tragen von Symbolen.","Die Benachteiligung von Menschen aufgrund von Geschlecht, Herkunft, Glaube oder Behinderung.","Das Rauchen in öffentlichen Gebäuden.","Die Verwendung bestimmter Sprachen."],a:1},
+  {id:146,cat:"Demokratie & Grundrechte",q:"Was ist das Briefgeheimnis?",opts:["Das Recht auf anonyme Briefe.","Der Schutz der Vertraulichkeit von Briefen und anderen Kommunikationsformen.","Eine Briefmarkensteuer.","Das Recht auf kostenlosen Postversand."],a:1},
+  {id:147,cat:"Demokratie & Grundrechte",q:"Was ist Meinungsfreiheit?",opts:["Das Recht, alles zu tun, was man will.","Das Recht, die eigene Meinung frei zu äußern — auch wenn sie der Regierung nicht passt.","Das Recht auf Redezeit im Parlament.","Das Recht auf kostenlose Zeitung."],a:1},
+  {id:148,cat:"Bundestag & Bundesregierung",q:"Was ist die Bundesversammlung?",opts:["Das Parlament.","Das Gremium, das den Bundespräsidenten wählt (Bundestag + Länderdelegierte).","Ein Ausschuss des Bundesrates.","Ein Notstandsorgan."],a:1},
+  {id:149,cat:"Bundestag & Bundesregierung",q:"Was ist eine Opposition?",opts:["Eine Partei ohne Mitglieder.","Die Parteien im Bundestag, die nicht der Regierung angehören.","Ein anderes Wort für Regierung.","Eine verbotene Partei."],a:1},
+  {id:150,cat:"Geschichte Deutschlands",q:"Was war die \"Wirtschaftswunder\" in Deutschland?",opts:["Ein Märchen.","Der rasche wirtschaftliche Aufschwung Westdeutschlands in den 1950er und 1960er Jahren.","Ein Bankensystem.","Ein Handelsabkommen."],a:1},
+
+  {id:151,cat:"Gesellschaft & Alltagsleben",q:"Was ist die gesetzliche Rentenversicherung?",opts:["Eine private Altersvorsorge.","Ein Pflichtversicherungssystem, das im Alter Rente zahlt.","Ein staatliches Sparprogramm.","Eine Steuer für Rentner."],a:1},
+  {id:152,cat:"Gesellschaft & Alltagsleben",q:"Was ist die Arbeitslosenversicherung?",opts:["Eine private Versicherung.","Eine Pflichtversicherung, die bei Arbeitslosigkeit Geld zahlt.","Freiwillige Zahlung beim Finanzamt.","Ein Darlehen vom Staat."],a:1},
+  {id:153,cat:"Gesellschaft & Alltagsleben",q:"Was ist die Pflegeversicherung in Deutschland?",opts:["Eine Versicherung für Krankenhäuser.","Eine gesetzliche Versicherung, die bei Pflegebedürftigkeit Leistungen erbringt.","Eine Tierversicherung.","Eine Hausratversicherung."],a:1},
+  {id:154,cat:"Rechte & Gesetze",q:"Was ist das Strafgesetzbuch (StGB)?",opts:["Die Verfassung Deutschlands.","Das Gesetz, das Straftaten und ihre Strafen festlegt.","Das Bürgerliche Gesetzbuch.","Das Verwaltungsrecht."],a:1},
+  {id:155,cat:"Rechte & Gesetze",q:"Was ist die Staatsanwaltschaft?",opts:["Das Gericht.","Die Behörde, die Strafverfolgung betreibt und Anklage erhebt.","Die Polizei.","Das Justizministerium."],a:1},
+  {id:156,cat:"Rechte & Gesetze",q:"Was ist Bewährung im deutschen Strafrecht?",opts:["Eine sofortige Freilassung ohne Bedingungen.","Die Aussetzung einer Haftstrafe zur Bewährung unter Auflagen.","Eine Geldstrafe.","Ein Freispruch."],a:1},
+  {id:157,cat:"Europa & Internationale Politik",q:"Was ist das Schengen-Abkommen?",opts:["Ein Handelsvertrag.","Ein Abkommen zur Abschaffung der Grenzkontrollen zwischen Teilnehmerstaaten.","Ein Militärbündnis.","Ein Bildungsabkommen."],a:1},
+  {id:158,cat:"Europa & Internationale Politik",q:"Was ist die Europäische Menschenrechtskonvention?",opts:["Eine EU-Verfassung.","Ein internationaler Vertrag, der grundlegende Menschenrechte garantiert.","Ein Abkommen über Flüchtlinge.","Eine Handelsvereinbarung."],a:1},
+  {id:159,cat:"Natur & Umwelt",q:"Was ist die Energiewende in Deutschland?",opts:["Der Umstieg auf ausschließlich Atomenergie.","Der Umbau des Energiesystems hin zu erneuerbaren Energien und weg von fossilen Brennstoffen.","Eine neue Steuer auf Energie.","Die Einführung von Energiesparen."],a:1},
+  {id:160,cat:"Wirtschaft",q:"Was ist die Einkommensteuer?",opts:["Eine Steuer auf Waren.","Eine Steuer auf das Einkommen von Personen und Unternehmen.","Eine Steuer auf Immobilien.","Eine Steuer auf Fahrzeuge."],a:1},
+
+  {id:161,cat:"Demokratie & Grundrechte",q:"Was bedeutet das Rechtsstaatsprinzip?",opts:["Der Staat handelt immer im Interesse der Reichen.","Alle staatlichen Handlungen müssen auf Gesetzen beruhen und kontrollierbar sein.","Nur Richter dürfen Gesetze machen.","Der Staat hat keine Pflichten."],a:1},
+  {id:162,cat:"Demokratie & Grundrechte",q:"Was ist das Sozialstaatsprinzip im Grundgesetz?",opts:["Deutschland ist ein wohlhabender Staat.","Deutschland ist verpflichtet, soziale Gerechtigkeit herzustellen und Benachteiligte zu unterstützen.","Alle Bürger erhalten staatliches Geld.","Der Staat kontrolliert alle Unternehmen."],a:1},
+  {id:163,cat:"Bundestag & Bundesregierung",q:"Wie heißt die Regierung auf Landesebene in Deutschland?",opts:["Bundesregierung.","Landesregierung.","Kommunalregierung.","Stadtregierung."],a:1},
+  {id:164,cat:"Bundestag & Bundesregierung",q:"Was ist ein Parlamentarischer Untersuchungsausschuss?",opts:["Ein Ausschuss zur Erstellung von Gesetzen.","Ein Ausschuss des Bundestags, der politische Vorgänge und Missstände untersucht.","Ein Gremium des Bundesverfassungsgerichts.","Ein Beratungsgremium des Bundeskanzlers."],a:1},
+  {id:165,cat:"Bundesländer & Föderalismus",q:"Was ist eine Gemeindeverwaltung?",opts:["Die Verwaltung eines Bundesministeriums.","Die lokale Verwaltung einer Stadt oder Gemeinde.","Das Finanzamt.","Das Standesamt auf Bundesebene."],a:1},
+  {id:166,cat:"Geschichte Deutschlands",q:"Was war das Deutsche Kaiserreich?",opts:["Die DDR.","Der deutsche Staat von 1871 bis 1918 unter Kaiser Wilhelm I. und II.","Die Weimarer Republik.","Das Heilige Römische Reich."],a:1},
+  {id:167,cat:"Geschichte Deutschlands",q:"Was war die Operation Overlord?",opts:["Ein NS-Massenmord.","Die Landung der Alliierten in der Normandie 1944 (D-Day).","Eine deutsche Offensive.","Ein Friedensangebot im Zweiten Weltkrieg."],a:1},
+  {id:168,cat:"Gesellschaft & Alltagsleben",q:"Was ist das BAföG?",opts:["Eine Steuerart.","Staatliche Förderung für Studierende und Schüler mit geringem Einkommen.","Eine Berufsausbildungsförderung für Betriebe.","Eine Förderung für Alleinerziehende."],a:1},
+  {id:169,cat:"Gesellschaft & Alltagsleben",q:"Was ist der Sozialhilfe (jetzt Bürgergeld)?",opts:["Eine Steuerrückerstattung.","Staatliche Unterstützung für Personen, die ihren Lebensunterhalt nicht selbst sichern können.","Ein Arbeitsprogramm.","Ein Kredit vom Staat."],a:1},
+  {id:170,cat:"Rechte & Gesetze",q:"Was ist die Prozesskostenhilfe?",opts:["Ein staatliches Darlehen.","Staatliche Unterstützung für Personen, die sich keinen Rechtsanwalt leisten können.","Eine Steuerentlastung.","Ein Anwaltshonorar."],a:1},
+  {id:171,cat:"Rechte & Gesetze",q:"Was ist das Meldegesetz in Deutschland?",opts:["Das Gesetz über Meldungen in der Presse.","Die Pflicht, den eigenen Wohnsitz beim Einwohnermeldeamt anzumelden.","Regeln für die Polizei.","Vorschriften für Meldungen von Straftaten."],a:1},
+  {id:172,cat:"Europa & Internationale Politik",q:"Was ist die OSZE?",opts:["Eine Militärorganisation.","Die Organisation für Sicherheit und Zusammenarbeit in Europa.","Eine EU-Institution.","Ein Handelsvertrag."],a:1},
+  {id:173,cat:"Europa & Internationale Politik",q:"Was ist der Europarat?",opts:["Die Regierung der EU.","Eine internationale Organisation für Menschenrechte und Demokratie (nicht die EU).","Das Parlament der EU.","Ein militärisches Bündnis."],a:1},
+  {id:174,cat:"Wirtschaft",q:"Was ist eine Konjunktur?",opts:["Ein Wirtschaftsplan.","Die allgemeine wirtschaftliche Lage und ihre Schwankungen.","Eine Steuerart.","Ein Handelsabkommen."],a:1},
+  {id:175,cat:"Gesellschaft & Alltagsleben",q:"Was ist die Tarifautonomie?",opts:["Das Recht des Staates, Löhne festzusetzen.","Das Recht von Gewerkschaften und Arbeitgebern, Löhne und Arbeitsbedingungen frei auszuhandeln.","Eine staatliche Preiskontrolle.","Das Recht auf Mindestlohn."],a:1},
+  {id:176,cat:"Demokratie & Grundrechte",q:"Was ist das Widerstandsrecht nach dem Grundgesetz?",opts:["Das Recht auf Streik.","Das Recht, gegen jemanden Widerstand zu leisten, der die Verfassung beseitigen will, wenn andere Mittel versagen.","Das Recht auf bewaffneten Widerstand.","Das Recht auf Meinungsfreiheit."],a:1},
+  {id:177,cat:"Bundestag & Bundesregierung",q:"Was ist die Immunität von Abgeordneten?",opts:["Abgeordnete dürfen nicht krank werden.","Abgeordnete können ohne Genehmigung des Bundestages nicht strafrechtlich verfolgt werden.","Abgeordnete sind vor Kritik geschützt.","Abgeordnete müssen keine Steuern zahlen."],a:1},
+  {id:178,cat:"Geschichte Deutschlands",q:"Was war der 20. Juli 1944?",opts:["Die Befreiung Berlins.","Das gescheiterte Attentat auf Adolf Hitler durch Widerstandskämpfer.","Der Beginn des Zweiten Weltkriegs.","Die Ausrufung der Weimarer Republik."],a:1},
+  {id:179,cat:"Gesellschaft & Alltagsleben",q:"Was bedeutet \"Integration\" im gesellschaftlichen Sinne?",opts:["Die Abschiebung von Ausländern.","Die Teilhabe aller Menschen an der Gesellschaft unabhängig von Herkunft oder Religion.","Das Erlernen der deutschen Sprache allein.","Die Anpassung an eine Religion."],a:1},
+  {id:180,cat:"Gesellschaft & Alltagsleben",q:"Was ist der Integrationskurs in Deutschland?",opts:["Ein Sportkurs für Migranten.","Ein staatlicher Sprachkurs plus Orientierungskurs für Migranten.","Ein Kochkurs für Einwanderer.","Ein Kurs nur für Asylbewerber."],a:1},
+
+  {id:181,cat:"Rechte & Gesetze",q:"Was ist die Grundbucheintragung?",opts:["Eine Steuerregistrierung.","Die amtliche Eintragung von Eigentum an Grundstücken und Immobilien.","Eine Gewerbeanmeldung.","Eine Fahrzeugzulassung."],a:1},
+  {id:182,cat:"Rechte & Gesetze",q:"Was ist ein Mietvertrag?",opts:["Ein Kaufvertrag für eine Wohnung.","Ein schriftlicher Vertrag zwischen Vermieter und Mieter über die Nutzung einer Wohnung.","Ein Kreditvertrag.","Ein Arbeitsvertrag."],a:1},
+  {id:183,cat:"Europa & Internationale Politik",q:"Was bedeutet \"Souveränität\" eines Staates?",opts:["Der Reichtum eines Landes.","Das Recht eines Staates, ohne Einmischung von außen selbst zu regieren.","Die militärische Stärke.","Die Größe des Territoriums."],a:1},
+  {id:184,cat:"Natur & Umwelt",q:"Was ist das Bundesumweltamt?",opts:["Ein privates Umweltforschungsinstitut.","Eine Behörde, die den Umweltschutz in Deutschland unterstützt und berät.","Das Ministerium für Landwirtschaft.","Eine Natur-NGO."],a:1},
+  {id:185,cat:"Symbole & Nationalsymbole",q:"Wer schrieb die deutsche Nationalhymne (Text)?",opts:["Friedrich Schiller.","August Heinrich Hoffmann von Fallersleben.","Johann Wolfgang von Goethe.","Heinrich Heine."],a:1},
+  {id:186,cat:"Symbole & Nationalsymbole",q:"Wer komponierte die Melodie der deutschen Nationalhymne?",opts:["Ludwig van Beethoven.","Robert Schumann.","Joseph Haydn.","Richard Wagner."],a:2},
+  {id:187,cat:"Wirtschaft",q:"Was ist das Handelsregister?",opts:["Ein Verzeichnis aller Produkte Deutschlands.","Ein öffentliches Register für eingetragene Kaufleute und Unternehmen.","Eine Steuerbehörde.","Ein Import-Export-Register."],a:1},
+  {id:188,cat:"Wirtschaft",q:"Was ist die IHK (Industrie- und Handelskammer)?",opts:["Eine staatliche Steuerbehörde.","Eine Interessenvertretung der Wirtschaft und Ausbildungsbehörde für Unternehmen.","Eine Gewerkschaft.","Ein Bundesministerium."],a:1},
+  {id:189,cat:"Gesellschaft & Alltagsleben",q:"Was ist der Verbraucherschutz?",opts:["Schutz vor zu viel Konsum.","Rechte und Maßnahmen zum Schutz von Käufern vor unlauteren Praktiken.","Eine Steuer auf Produkte.","Eine staatliche Preiskontrolle."],a:1},
+  {id:190,cat:"Gesellschaft & Alltagsleben",q:"Was ist eine GmbH?",opts:["Eine Gesellschaft mit beschränkter Haftung — eine häufige Unternehmensform.","Eine staatliche Behörde.","Eine Gewerkschaft.","Eine Versicherungsgesellschaft."],a:0},
+
+  {id:191,cat:"Demokratie & Grundrechte",q:"Was ist das Petitionsrecht?",opts:["Das Recht auf Steuerbefreiung.","Das Recht aller Menschen, sich schriftlich an den Bundestag zu wenden.","Das Recht auf Demonstration.","Das Recht auf Klage."],a:1},
+  {id:192,cat:"Bundestag & Bundesregierung",q:"Was ist der Ältestenrat des Bundestags?",opts:["Ein Gremium älterer Abgeordneter.","Ein Koordinierungsgremium des Bundestages für Tagesordnung und Geschäftsordnung.","Das höchste Gericht.","Die Bundesversammlung."],a:1},
+  {id:193,cat:"Geschichte Deutschlands",q:"Was war die Frankfurter Nationalversammlung 1848/49?",opts:["Das erste deutsche Parlament, das eine Einigung Deutschlands und eine Verfassung anstrebte.","Die Gründungsveranstaltung des Kaiserreichs.","Ein NS-Kongress.","Die erste Sitzung des Bundestags."],a:0},
+  {id:194,cat:"Gesellschaft & Alltagsleben",q:"Was ist das Recht auf Bildung in Deutschland?",opts:["Nur Deutsche haben Anspruch auf Bildung.","Alle Kinder haben ein Recht auf Bildung, unabhängig von Herkunft oder Einkommen.","Bildung ist kostenpflichtig für alle.","Nur Akademiker dürfen Kinder unterrichten."],a:1},
+  {id:195,cat:"Rechte & Gesetze",q:"Was ist das Gewohnheitsrecht?",opts:["Gesetztes Recht.","Recht, das aus langjähriger gesellschaftlicher Praxis entstanden ist.","Kirchenrecht.","Verfassungsrecht."],a:1},
+  {id:196,cat:"Europa & Internationale Politik",q:"Was ist die UNHCR?",opts:["Eine EU-Behörde.","Das Flüchtlingswerk der Vereinten Nationen.","Eine Handelsorganisation.","Ein Militärbündnis."],a:1},
+  {id:197,cat:"Religion & Kirche",q:"Was ist ein Feiertag in Deutschland?",opts:["Ein Tag, an dem Schulen geöffnet sind.","Ein gesetzlich geschützter freier Tag, häufig religiösen Ursprungs.","Ein Tag für staatliche Feiern nur.","Ein Tag, an dem Steuern gezahlt werden."],a:1},
+  {id:198,cat:"Familie & Ehe",q:"Was ist das Unterhaltsrecht?",opts:["Recht auf Steuerunterstützung.","Regeln über die finanzielle Unterstützung zwischen Familienmitgliedern, z.B. nach Scheidung.","Mietrecht.","Erbrecht."],a:1},
+  {id:199,cat:"Medien & Kommunikation",q:"Was ist Datenschutz?",opts:["Der Schutz von Computern.","Der Schutz personenbezogener Daten vor unbefugtem Zugriff und Missbrauch.","Ein Recht auf Geheimdienst.","Ein Recht auf WLAN."],a:1},
+  {id:200,cat:"Demokratie & Grundrechte",q:"Was ist das Recht auf Asyl in Deutschland?",opts:["Das Recht auf Urlaub im Ausland.","Das Grundrecht auf Schutz für politisch Verfolgte.","Das Recht auf deutschen Pass.","Das Recht auf sofortige Einbürgerung."],a:1},
+
+  // 201-300
+  {id:201,cat:"Bundestag & Bundesregierung",q:"Was ist der Vermittlungsausschuss?",opts:["Ein Ausschuss für internationale Verhandlungen.","Ein gemeinsamer Ausschuss von Bundestag und Bundesrat zur Einigung bei Gesetzen.","Ein Gerichtsorgan.","Ein Ausschuss des Bundesrates."],a:1},
+  {id:202,cat:"Geschichte Deutschlands",q:"Was war der Potsdamer Vertrag 1945?",opts:["Der Friedensvertrag, der Deutschland aufgeteilt hat.","Das Abkommen der Alliierten über die Nachkriegsordnung Deutschlands und Europas.","Ein Handelsvertrag.","Die Gründung der NATO."],a:1},
+  {id:203,cat:"Geschichte Deutschlands",q:"Was war die Berliner Luftbrücke 1948/49?",opts:["Ein Flugzeugabsturz.","Die Versorgung West-Berlins durch westliche Alliiierte per Luftbrücke während der sowjetischen Blockade.","Eine Militäroffensive.","Ein Aufstand in Berlin."],a:1},
+  {id:204,cat:"Gesellschaft & Alltagsleben",q:"Was ist ein Betriebsrat?",opts:["Die Unternehmensleitung.","Das gewählte Gremium der Arbeitnehmer, das deren Interessen im Betrieb vertritt.","Ein staatliches Kontrollgremium.","Eine Gewerkschaft."],a:1},
+  {id:205,cat:"Gesellschaft & Alltagsleben",q:"Was ist das Mitbestimmungsrecht der Arbeitnehmer?",opts:["Das Recht, den Chef zu wählen.","Das Recht der Arbeitnehmer, bei betrieblichen Entscheidungen mitzureden.","Das Recht auf Lohnerhöhung.","Das Recht auf Kündigung des Chefs."],a:1},
+  {id:206,cat:"Rechte & Gesetze",q:"Was ist ein Verwaltungsgericht?",opts:["Ein Gericht für Privatstreitigkeiten.","Ein Gericht, das über Streitigkeiten zwischen Bürgern und Behörden entscheidet.","Ein Strafgericht.","Ein Arbeitsgericht."],a:1},
+  {id:207,cat:"Rechte & Gesetze",q:"Was ist ein Amtsgericht?",opts:["Das höchste Gericht Deutschlands.","Das unterste Gericht in der ordentlichen Gerichtsbarkeit.","Ein Gericht für Wirtschaftssachen.","Ein Verwaltungsgericht."],a:1},
+  {id:208,cat:"Europa & Internationale Politik",q:"Was ist das Kyoto-Protokoll?",opts:["Ein NATO-Abkommen.","Ein internationales Klimavertrag zur Reduzierung von Treibhausgasen.","Ein Handelsabkommen.","Ein Bildungsvertrag."],a:1},
+  {id:209,cat:"Natur & Umwelt",q:"Was ist ein Nationalpark?",opts:["Ein Stadtpark.","Ein großes Schutzgebiet, in dem Natur sich weitgehend ungestört entwickeln soll.","Ein Sportgelände.","Ein Industriegebiet."],a:1},
+  {id:210,cat:"Wirtschaft",q:"Was ist die Inflation?",opts:["Der Anstieg des Lebensstandards.","Der allgemeine Anstieg des Preisniveaus, der die Kaufkraft des Geldes mindert.","Der Rückgang der Wirtschaft.","Eine Steuererhöhung."],a:1},
+  {id:211,cat:"Demokratie & Grundrechte",q:"Was ist das Gleichheitsprinzip?",opts:["Alle Menschen müssen gleich viel verdienen.","Alle Menschen sind vor dem Gesetz gleich und dürfen nicht willkürlich benachteiligt werden.","Nur Deutsche sind gleich.","Der Staat gibt allen das Gleiche."],a:1},
+  {id:212,cat:"Bundestag & Bundesregierung",q:"Was macht die Bundeswehr?",opts:["Die Bundeswehr ist die Polizei Deutschlands.","Die Bundeswehr ist die Streitkraft Deutschlands und dient der Landesverteidigung und internationalen Missionen.","Die Bundeswehr macht Gesetze.","Die Bundeswehr verwaltet die Grenzen."],a:1},
+  {id:213,cat:"Bundesländer & Föderalismus",q:"Was ist ein Bürgermeister?",opts:["Der Chef einer Polizeibehörde.","Das Oberhaupt einer Gemeinde oder Stadt.","Ein Mitglied des Bundestages.","Ein Richter."],a:1},
+  {id:214,cat:"Geschichte Deutschlands",q:"Was war die Ostpolitik (Willy Brandt)?",opts:["Eine Militärstrategie.","Eine Politik der Annäherung und des Dialogs mit Ostdeutschland und Osteuropa in den 1970er Jahren.","Eine Wirtschaftspolitik.","Eine Innenpolitik der CDU."],a:1},
+  {id:215,cat:"Geschichte Deutschlands",q:"Wer war Konrad Adenauer?",opts:["Der erste Bundespräsident Deutschlands.","Der erste Bundeskanzler der BRD (1949–1963), CDU-Vorsitzender und Staatsmann.","Ein NS-Kriegsverbrecher.","Der letzte Kaiser Deutschlands."],a:1},
+  {id:216,cat:"Gesellschaft & Alltagsleben",q:"Was ist die Wehrpflicht (in Deutschland)?",opts:["Die Pflicht zum Militärdienst; in Deutschland seit 2011 ausgesetzt.","Die Pflicht, Steuern zu zahlen.","Die Schulpflicht.","Die Pflicht zur Arbeit."],a:0},
+  {id:217,cat:"Gesellschaft & Alltagsleben",q:"Was ist der Zivildienst (jetzt Bundesfreiwilligendienst)?",opts:["Ein staatliches Förderprogramm für Studenten.","Freiwilliger sozialer Dienst als Alternative oder Ergänzung zu militärischem Dienst.","Zwangsarbeit.","Ein Militärprogramm."],a:1},
+  {id:218,cat:"Rechte & Gesetze",q:"Was ist das Aufenthaltsgesetz?",opts:["Das Gesetz über Wohnorte.","Das Gesetz, das Einreise und Aufenthalt von Ausländern in Deutschland regelt.","Das Gesetz über Reisefreiheit.","Das Gesetz über Grenzkontrollen."],a:1},
+  {id:219,cat:"Rechte & Gesetze",q:"Was ist eine Niederlassungserlaubnis?",opts:["Eine Reisegenehmigung.","Eine unbefristete Aufenthaltserlaubnis für Ausländer in Deutschland.","Eine Arbeitsgenehmigung.","Ein Einbürgerungsdokument."],a:1},
+  {id:220,cat:"Rechte & Gesetze",q:"Was ist Einbürgerung?",opts:["Das Recht auf deutschen Schulbesuch.","Der Erwerb der deutschen Staatsangehörigkeit.","Das Recht auf Sozialleistungen.","Die Registrierung als Ausländer."],a:1},
+  {id:221,cat:"Europa & Internationale Politik",q:"Was ist der Lissabon-Vertrag?",opts:["Ein Handelsvertrag.","Der Grundlagenvertrag der EU, der Institutionen und Zuständigkeiten reformiert hat.","Ein Klimaabkommen.","Ein Militärabkommen."],a:1},
+  {id:222,cat:"Europa & Internationale Politik",q:"Was ist der Maastricht-Vertrag?",opts:["Ein Militärabkommen.","Der Vertrag von 1992, der die EU offiziell gründete und den Euro einführte.","Ein Handelsabkommen.","Eine Verfassung der EU."],a:1},
+  {id:223,cat:"Natur & Umwelt",q:"Was ist das Erneuerbare-Energien-Gesetz (EEG)?",opts:["Ein Steuergesetz.","Ein Gesetz, das den Ausbau erneuerbarer Energien in Deutschland fördert.","Ein Naturschutzgesetz.","Ein Gesetz für Atomkraftwerke."],a:1},
+  {id:224,cat:"Symbole & Nationalsymbole",q:"Was bedeutet das Brandenburger Tor heute?",opts:["Es ist ein Einkaufszentrum.","Es ist ein Symbol für die Einheit Deutschlands und europäische Einigung.","Es ist ein Museum.","Es ist der Sitz der Bundesregierung."],a:1},
+  {id:225,cat:"Wirtschaft",q:"Was ist das Arbeitslosengeld II (jetzt Bürgergeld)?",opts:["Arbeitslosengeld für kurze Zeit.","Eine staatliche Grundsicherung für erwerbsfähige Personen, die keine Arbeit haben.","Eine Rente.","Ein Kredit."],a:1},
+  {id:226,cat:"Demokratie & Grundrechte",q:"Was ist das Verbot der Todesstrafe in Deutschland?",opts:["Die Todesstrafe ist in bestimmten Fällen erlaubt.","Das Grundgesetz verbietet die Todesstrafe.","Nur Kriegsverbrecher können hingerichtet werden.","Die Todesstrafe gilt nur für Ausländer."],a:1},
+  {id:227,cat:"Bundestag & Bundesregierung",q:"Was ist eine parlamentarische Anfrage?",opts:["Eine Bürgerbeschwerde.","Eine formelle Frage eines Abgeordneten an die Regierung im Bundestag.","Ein Gerichtsantrag.","Eine Volksabstimmung."],a:1},
+  {id:228,cat:"Geschichte Deutschlands",q:"Wer war Rosa Luxemburg?",opts:["Eine Königin.","Eine sozialistische Politikerin und Revolutionärin, 1919 ermordet.","Eine Schriftstellerin.","Eine Wissenschaftlerin."],a:1},
+  {id:229,cat:"Geschichte Deutschlands",q:"Was war die Novemberrevolution 1918?",opts:["Ein Aufstand gegen Napoleon.","Die Revolution, die das Kaiserreich beendete und die Weimarer Republik einleitete.","Ein kommunistischer Umsturz.","Eine Revolte der Nationalsozialisten."],a:1},
+  {id:230,cat:"Gesellschaft & Alltagsleben",q:"Was ist der Datenschutzbeauftragte?",opts:["Ein Polizist für Internetkriminalität.","Eine Person oder Behörde, die die Einhaltung des Datenschutzes überwacht.","Ein Steuerberater.","Ein Medienwächter."],a:1},
+  {id:231,cat:"Gesellschaft & Alltagsleben",q:"Was ist eine Bürgerpflicht?",opts:["Das Recht, den Staat zu kritisieren.","Eine Pflicht, die Bürger gegenüber dem Gemeinwesen haben, z.B. Steuern zahlen, Wählen.","Das Recht auf Sozialhilfe.","Ein Recht auf Pass."],a:1},
+  {id:232,cat:"Rechte & Gesetze",q:"Was ist das Waffengesetz in Deutschland?",opts:["Schusswaffen sind frei erhältlich.","Das Gesetz, das den Besitz und die Verwendung von Waffen streng regelt.","Waffen sind für alle verboten.","Nur Polizisten dürfen Waffen tragen."],a:1},
+  {id:233,cat:"Rechte & Gesetze",q:"Was ist Körperverletzung im deutschen Recht?",opts:["Das Verletzen der Gefühle einer Person.","Das vorsätzliche oder fahrlässige Verletzen einer anderen Person.","Ein Unfall.","Eine Eigentumsschädigung."],a:1},
+  {id:234,cat:"Europa & Internationale Politik",q:"Was ist die WTO?",opts:["Eine Umweltorganisation.","Die Welthandelsorganisation, die internationalen Handel regelt.","Ein Militärbündnis.","Eine Menschenrechtsorganisation."],a:1},
+  {id:235,cat:"Europa & Internationale Politik",q:"Was ist das G7?",opts:["Eine UN-Organisation.","Die Gruppe der sieben größten Industrienationen.","Ein Militärbündnis.","Ein EU-Ausschuss."],a:1},
+  {id:236,cat:"Natur & Umwelt",q:"Was ist der Treibhauseffekt?",opts:["Eine Art Landwirtschaft.","Die Erwärmung der Erde durch Treibhausgase, die Wärmestrahlung in der Atmosphäre zurückhalten.","Eine Energiesparmaßnahme.","Ein chemisches Experiment."],a:1},
+  {id:237,cat:"Wirtschaft",q:"Was ist die Arbeitsagentur (Bundesagentur für Arbeit)?",opts:["Ein privates Stellenvermittlungsunternehmen.","Die staatliche Behörde, die Arbeitslose unterstützt, Arbeitslosengeld zahlt und Stellen vermittelt.","Eine Gewerkschaft.","Ein Ministerium."],a:1},
+  {id:238,cat:"Demokratie & Grundrechte",q:"Was ist Pluralismus in Deutschland?",opts:["Es gibt nur eine Meinung.","Es gibt viele verschiedene Meinungen, Interessen und Gruppen, die gleichberechtigt nebeneinander existieren.","Der Staat bestimmt die Wahrheit.","Mehrheitsmeinung ist immer richtig."],a:1},
+  {id:239,cat:"Bundestag & Bundesregierung",q:"Was sind die Farben der CDU?",opts:["Rot und Weiß.","Schwarz und Orange.","Schwarz.","Blau und Weiß."],a:2},
+  {id:240,cat:"Bundestag & Bundesregierung",q:"Was ist die SPD?",opts:["Eine konservative Partei.","Die Sozialdemokratische Partei Deutschlands — eine der ältesten Parteien.","Eine rechtsextreme Partei.","Eine Partei für Umweltschutz."],a:1},
+  {id:241,cat:"Geschichte Deutschlands",q:"Was war die \"Stasi\"?",opts:["Eine Polizeibehörde der BRD.","Das Ministerium für Staatssicherheit der DDR — der Geheimdienst.","Eine Partei der DDR.","Ein westdeutsches Gericht."],a:1},
+  {id:242,cat:"Geschichte Deutschlands",q:"Was war die \"Treuhandanstalt\"?",opts:["Eine Bank.","Eine Behörde, die nach der Wiedervereinigung DDR-Betriebe privatisierte.","Ein Gericht für Wirtschaft.","Ein Ministerium."],a:1},
+  {id:243,cat:"Gesellschaft & Alltagsleben",q:"Was ist der Hauptschulabschluss?",opts:["Der höchste Schulabschluss.","Der Abschluss nach Klasse 9 oder 10 der Hauptschule.","Das Abitur.","Ein Berufsabschluss."],a:1},
+  {id:244,cat:"Gesellschaft & Alltagsleben",q:"Was ist das Realschulabschluss (Mittlere Reife)?",opts:["Der höchste Schulabschluss.","Ein Schulabschluss nach Klasse 10, der Zugang zu mittleren Berufen ermöglicht.","Das Abitur.","Ein universitärer Abschluss."],a:1},
+  {id:245,cat:"Rechte & Gesetze",q:"Was ist ein Anwalt (Rechtsanwalt)?",opts:["Ein Staatsbeamter.","Ein juristisch ausgebildeter Fachmann, der Mandanten rechtlich berät und vertritt.","Ein Richter.","Ein Staatsanwalt."],a:1},
+  {id:246,cat:"Rechte & Gesetze",q:"Was ist ein Richter?",opts:["Ein Mitarbeiter der Staatsanwaltschaft.","Eine Person, die unabhängig und unparteiisch Rechtsstreitigkeiten entscheidet.","Ein Polizist.","Ein Anwalt."],a:1},
+  {id:247,cat:"Europa & Internationale Politik",q:"Was ist das Pariser Klimaabkommen?",opts:["Ein Handelsvertrag.","Ein internationales Abkommen zur Begrenzung der Erderwärmung auf unter 2°C.","Ein Militärabkommen.","Ein EU-Abkommen."],a:1},
+  {id:248,cat:"Natur & Umwelt",q:"Was ist Biodiversität?",opts:["Die Vielfalt der Sprachen.","Die Vielfalt des Lebens auf der Erde — Artenvielfalt, genetische Vielfalt und Ökosystemvielfalt.","Die Vielfalt der Kulturen.","Die Anzahl der Nationalparks."],a:1},
+  {id:249,cat:"Wirtschaft",q:"Was ist die Exportwirtschaft?",opts:["Der Import von Waren aus dem Ausland.","Die Gesamtheit der Waren und Dienstleistungen, die ein Land ins Ausland verkauft.","Die Binnenwirtschaft.","Die Staatswirtschaft."],a:1},
+  {id:250,cat:"Demokratie & Grundrechte",q:"Was ist die Meinungsfreiheit und wo hat sie Grenzen?",opts:["Meinungsfreiheit ist unbegrenzt.","Meinungsfreiheit gilt sehr weit, findet aber ihre Grenze bei Volksverhetzung, Beleidigung und Verleumdung.","Meinungsfreiheit gilt nur für Deutsche.","Meinungsfreiheit gilt nur in der Presse."],a:1},
+  {id:251,cat:"Bundestag & Bundesregierung",q:"Was ist die Grünen-Partei (Bündnis 90/Die Grünen)?",opts:["Eine konservative Partei.","Eine Partei, die sich für Umweltschutz, Bürgerrechte und soziale Gerechtigkeit einsetzt.","Eine rechtsextreme Partei.","Eine Wirtschaftspartei."],a:1},
+  {id:252,cat:"Bundestag & Bundesregierung",q:"Was ist die FDP?",opts:["Eine sozialistische Partei.","Die Freie Demokratische Partei, die für Marktfreiheit und Bürgerrechte eintritt.","Eine Umweltpartei.","Eine Partei für ältere Menschen."],a:1},
+  {id:253,cat:"Geschichte Deutschlands",q:"Was war der Bau der Berliner Mauer ein Symbol für?",opts:["Die Offenheit der DDR.","Die Teilung Deutschlands und die Unterdrückung der Bevölkerung der DDR.","Den Wohlstand Ostdeutschlands.","Das Ende des Zweiten Weltkriegs."],a:1},
+  {id:254,cat:"Geschichte Deutschlands",q:"Was war die \"Wende\" in der DDR?",opts:["Eine Wirtschaftsreform.","Die friedliche Revolution 1989, die zum Ende der DDR und zur Wiedervereinigung führte.","Ein Militärputsch.","Die Gründung der BRD."],a:1},
+  {id:255,cat:"Gesellschaft & Alltagsleben",q:"Was ist der öffentliche Nahverkehr (ÖPNV)?",opts:["Privatbusse.","Bus, Straßenbahn, U-Bahn und S-Bahn als öffentliches Transportmittel.","Taxiunternehmen.","Flughäfen."],a:1},
+  {id:256,cat:"Gesellschaft & Alltagsleben",q:"Was bedeutet \"Toleranz\"?",opts:["Andere Meinungen und Lebensweisen zu akzeptieren und zu respektieren.","Allen immer zuzustimmen.","Niemals seine Meinung zu sagen.","Alle Gesetze zu befolgen."],a:0},
+  {id:257,cat:"Rechte & Gesetze",q:"Was ist eine Ordnungswidrigkeit?",opts:["Eine schwere Straftat.","Ein Verstoß gegen Regeln, der mit Bußgeld geahndet wird (kein Straftatbestand).","Eine Zivilklage.","Eine Pflichtverletzung im Arbeitsrecht."],a:1},
+  {id:258,cat:"Rechte & Gesetze",q:"Was ist Diebstahl im deutschen Recht?",opts:["Das Leihen fremder Gegenstände.","Die Wegnahme einer fremden Sache in der Absicht, sie dauerhaft zu behalten.","Das Verlieren von Gegenständen.","Das Kopieren fremder Ideen."],a:1},
+  {id:259,cat:"Europa & Internationale Politik",q:"Was ist das Europäische Asylsystem (Dublin-Verordnung)?",opts:["Eine EU-Handelsregelung.","Regeln, die festlegen, welches EU-Land für einen Asylantrag zuständig ist.","Eine Flüchtlingsquote.","Ein internationaler Vertrag über Einwanderung."],a:1},
+  {id:260,cat:"Wirtschaft",q:"Was ist Privatisierung?",opts:["Verstaatlichung von Unternehmen.","Die Übertragung staatlicher Unternehmen oder Aufgaben an private Träger.","Eine Steuerreform.","Ein Wirtschaftsboykott."],a:1},
+  {id:261,cat:"Demokratie & Grundrechte",q:"Was ist Transparenz in der Politik?",opts:["Die Geheimhaltung von Staatsinformationen.","Die Offenheit staatlichen Handelns gegenüber Bürgern und Öffentlichkeit.","Eine Steuerform.","Ein Mediengesetz."],a:1},
+  {id:262,cat:"Bundestag & Bundesregierung",q:"Was ist die AfD?",opts:["Eine Partei für Alternative und Diversität.","Alternative für Deutschland — eine rechtspopulistische Partei.","Eine christliche Partei.","Eine sozialdemokratische Partei."],a:1},
+  {id:263,cat:"Geschichte Deutschlands",q:"Was war der Dreißigjährige Krieg (1618–1648)?",opts:["Ein Krieg nur zwischen Deutschland und Frankreich.","Ein verheerender europäischer Religions- und Machtkrieg, der hauptsächlich auf deutschem Boden ausgetragen wurde.","Der Erste Weltkrieg.","Ein Kolonialkrieg Deutschlands."],a:1},
+  {id:264,cat:"Geschichte Deutschlands",q:"Wer war Otto von Bismarck?",opts:["Ein DDR-Politiker.","Der Reichskanzler, der die deutsche Einigung 1871 vorantrieb.","Ein NS-Führer.","Ein preußischer König."],a:1},
+  {id:265,cat:"Gesellschaft & Alltagsleben",q:"Was ist das Kindergartengesetz?",opts:["Ein Bundesgesetz über Kindergärten.","In den Bundesländern geregelte Vorschriften für Kindertagesstätten.","Eine Steuer für Kita-Besuch.","Ein Gesetz über Schulbücher."],a:1},
+  {id:266,cat:"Gesellschaft & Alltagsleben",q:"Was ist die Kinderrechtskonvention der UN?",opts:["Ein EU-Gesetz.","Ein internationales Abkommen über die Rechte von Kindern weltweit.","Eine nationale Schulregel.","Ein deutsches Grundgesetz."],a:1},
+  {id:267,cat:"Rechte & Gesetze",q:"Was ist Betrug im deutschen Recht?",opts:["Das Stehlen von Eigentum.","Täuschung einer anderen Person, um sich oder anderen einen Vorteil zu verschaffen.","Eine Ordnungswidrigkeit.","Eine Beleidigung."],a:1},
+  {id:268,cat:"Rechte & Gesetze",q:"Was ist das Urheberrecht?",opts:["Das Recht, Bücher zu kaufen.","Das Recht von Urhebern, über die Nutzung ihrer Werke zu bestimmen.","Das Recht auf freie Meinungsäußerung.","Das Recht auf Bildung."],a:1},
+  {id:269,cat:"Europa & Internationale Politik",q:"Was ist die Weltbank?",opts:["Eine private Investmentbank.","Eine internationale Finanzorganisation, die Entwicklungsländern Kredite und Hilfe gibt.","Die EZB.","Eine EU-Institution."],a:1},
+  {id:270,cat:"Natur & Umwelt",q:"Was ist ein Biosphärenreservat?",opts:["Ein Stadtbezirk.","Ein UNESCO-Schutzgebiet, das nachhaltiges Leben und Wirtschaften in der Natur fördern soll.","Ein militärisches Sperrgebiet.","Ein Freizeitpark."],a:1},
+  {id:271,cat:"Wirtschaft",q:"Was ist die Globalisierung?",opts:["Die Vereinheitlichung aller Kulturen.","Die weltweit zunehmende Vernetzung von Wirtschaft, Kommunikation, Kultur und Politik.","Ein Handelsabkommen.","Die Ausbreitung der EU."],a:1},
+  {id:272,cat:"Demokratie & Grundrechte",q:"Was ist ein Volksentscheid?",opts:["Eine Abstimmung im Bundestag.","Eine direkte Abstimmung der Bevölkerung über eine politische Frage.","Eine Kommunalwahl.","Eine Parteiabstimmung."],a:1},
+  {id:273,cat:"Bundestag & Bundesregierung",q:"Was ist die Linke (Partei)?",opts:["Eine christliche Partei.","Eine linke/sozialistische Partei in Deutschland.","Eine liberale Partei.","Eine konservative Partei."],a:1},
+  {id:274,cat:"Geschichte Deutschlands",q:"Was war der Volksaufstand vom 17. Juni 1953?",opts:["Ein Aufstand in Westdeutschland.","Ein Arbeiteraufstand in der DDR, der von sowjetischen Truppen niedergeschlagen wurde.","Die Gründung der BRD.","Ein Aufstand gegen die NS-Diktatur."],a:1},
+  {id:275,cat:"Gesellschaft & Alltagsleben",q:"Was ist das \"Solidaritätsprinzip\" in der deutschen Sozialversicherung?",opts:["Alle zahlen gleich viel.","Die Starken helfen die Schwachen — Beiträge richten sich nach Einkommen, Leistungen nach Bedarf.","Nur Reiche zahlen.","Jeder spart für sich allein."],a:1},
+  {id:276,cat:"Gesellschaft & Alltagsleben",q:"Was ist der Behindertenausweis?",opts:["Ein Reisepass für Menschen mit Behinderung.","Ein amtlicher Ausweis, der Menschen mit Behinderung Zugang zu bestimmten Nachteilsausgleichen verschafft.","Ein Ausländerausweis.","Eine medizinische Krankenkarte."],a:1},
+  {id:277,cat:"Rechte & Gesetze",q:"Was ist das Aufenthaltsrecht für EU-Bürger in Deutschland?",opts:["EU-Bürger brauchen kein Visum und dürfen frei einreisen, leben und arbeiten.","EU-Bürger brauchen eine Aufenthaltserlaubnis.","EU-Bürger dürfen nur 3 Monate bleiben.","EU-Bürger müssen sich einbürgern lassen."],a:0},
+  {id:278,cat:"Rechte & Gesetze",q:"Was ist Stalking nach deutschem Recht?",opts:["Eine Ordnungswidrigkeit.","Das beharrliche Nachstellen oder Belästigen einer Person gegen deren Willen.","Eine Form des Einbruchs.","Ein Medienvergehen."],a:1},
+  {id:279,cat:"Europa & Internationale Politik",q:"Was ist die Agenda 2030 der UN?",opts:["Ein Verteidigungsplan.","Ein globaler Aktionsplan für nachhaltige Entwicklung bis 2030.","Ein EU-Budget.","Ein NATO-Strategieplan."],a:1},
+  {id:280,cat:"Wirtschaft",q:"Was ist Deflation?",opts:["Ein Anstieg der Preise.","Ein allgemeines Sinken des Preisniveaus.","Eine Rezession.","Eine Staatspleite."],a:1},
+  {id:281,cat:"Demokratie & Grundrechte",q:"Was ist ein Rechtsstaat im Unterschied zu einem Unrechtsstaat?",opts:["Im Rechtsstaat macht nur der Stärkere die Regeln.","Im Rechtsstaat ist staatliches Handeln an Gesetze gebunden und kontrolliertbar; im Unrechtsstaat nicht.","Im Rechtsstaat darf der Staat alles.","Im Rechtsstaat sind Gesetze freiwillig."],a:1},
+  {id:282,cat:"Bundestag & Bundesregierung",q:"Was ist das Amt des Bundesbeauftragten für den Datenschutz?",opts:["Ein Regierungsminister.","Eine unabhängige Behörde, die den Datenschutz in Bundesbehörden überwacht.","Ein Richter.","Eine Polizeibehörde."],a:1},
+  {id:283,cat:"Geschichte Deutschlands",q:"Was ist der 9. November als historisches Datum?",opts:["Nur der Tag des Mauerfalls 1989.","Ein mehrdeutiger Jahrestag: Mauerfall 1989, Reichspogromnacht 1938 und Ausrufung der Republik 1918.","Der Tag der deutschen Einheit.","Der Tag der Gründung der BRD."],a:1},
+  {id:284,cat:"Geschichte Deutschlands",q:"Was war die Rote Armee Fraktion (RAF)?",opts:["Eine Abteilung der Bundeswehr.","Eine linksextremistische Terrororganisation in Westdeutschland (1970er–1990er Jahre).","Ein Teil der DDR-Armee.","Eine gewerkschaftliche Organisation."],a:1},
+  {id:285,cat:"Gesellschaft & Alltagsleben",q:"Was ist das \"Asylbewerberleistungsgesetz\"?",opts:["Ein Gesetz, das Asylbewerbern Sozialhilfe gewährt.","Ein Gesetz, das besondere Leistungen für Asylbewerber regelt.","Ein Gesetz über Abschiebungen.","Ein Gesetz über Integrationskurse."],a:1},
+  {id:286,cat:"Gesellschaft & Alltagsleben",q:"Was ist das \"Allgemeine Gleichbehandlungsgesetz (AGG)\"?",opts:["Ein Gesetz für gleiche Löhne.","Ein Gesetz, das Diskriminierung in Beschäftigung und Alltag verbietet.","Ein Steuergesetz.","Ein Bildungsgesetz."],a:1},
+  {id:287,cat:"Rechte & Gesetze",q:"Was ist das Notwehrrecht in Deutschland?",opts:["Das Recht auf Waffen.","Das Recht, sich gegen einen Angriff zu verteidigen, wenn keine andere Möglichkeit besteht.","Das Recht auf Selbstjustiz.","Das Recht auf Polizeinotruf."],a:1},
+  {id:288,cat:"Rechte & Gesetze",q:"Was ist eine Geldstrafe?",opts:["Eine Freiheitsstrafe.","Eine finanzielle Sanktion als Strafe für eine Straftat oder Ordnungswidrigkeit.","Eine Bewährungsstrafe.","Eine Verwarnung."],a:1},
+  {id:289,cat:"Europa & Internationale Politik",q:"Was ist die EU-Grundrechtecharta?",opts:["Ein Handelsabkommen.","Ein Dokument, das die Grundrechte der EU-Bürger gegenüber EU-Institutionen sichert.","Eine Militärstrategie.","Das Grundgesetz Deutschlands."],a:1},
+  {id:290,cat:"Natur & Umwelt",q:"Was ist ein Weltnaturerbe (UNESCO)?",opts:["Ein staatlicher Park.","Ein Ort von außergewöhnlichem natürlichem Wert, der durch die UNESCO geschützt wird.","Ein Nationalpark.","Ein Biosphärenreservat."],a:1},
+  {id:291,cat:"Wirtschaft",q:"Was ist eine Rezession?",opts:["Eine Wirtschaftsphase mit starkem Wachstum.","Ein zeitweiser wirtschaftlicher Abschwung mit sinkendem BIP.","Eine Inflation.","Eine Deflation."],a:1},
+  {id:292,cat:"Demokratie & Grundrechte",q:"Was ist die Bundesbeauftragte für Migration, Flüchtlinge und Integration?",opts:["Eine Richterin.","Ein Amt, das die Bundesregierung in Integrationsfragen berät und Migranten vertritt.","Eine Ministerin.","Eine EU-Beamtin."],a:1},
+  {id:293,cat:"Bundestag & Bundesregierung",q:"Was ist eine Kabinettsitzung?",opts:["Eine Sitzung des Bundestages.","Eine Sitzung der Bundesminister unter Leitung des Bundeskanzlers.","Eine Sitzung des Bundesrates.","Eine Pressekonferenz."],a:1},
+  {id:294,cat:"Geschichte Deutschlands",q:"Was war der Westfeldzug 1940?",opts:["Ein Verteidigungskrieg Deutschlands.","Die schnelle militärische Eroberung Frankreichs und der Beneluxstaaten durch Nazi-Deutschland.","Eine Seeschlacht.","Ein Attentat."],a:1},
+  {id:295,cat:"Gesellschaft & Alltagsleben",q:"Was ist das Handwerk in Deutschland?",opts:["Nur handgemachte Souvenirs.","Ein wichtiger Wirtschaftsbereich mit handwerklich-qualifizierten Berufen und starker Ausbildungstradition.","Ausschließlich Kunsthandwerk.","Staatlich kontrollierte Produktion."],a:1},
+  {id:296,cat:"Rechte & Gesetze",q:"Was ist das Recht auf freie Berufswahl?",opts:["Nur Deutsche dürfen alle Berufe ausüben.","Jeder Mensch hat das Recht, seinen Beruf frei zu wählen.","Der Staat weist Berufe zu.","Nur bestimmte Berufe sind frei wählbar."],a:1},
+  {id:297,cat:"Europa & Internationale Politik",q:"Was ist der Sicherheitsrat der UN?",opts:["Das Parlament der UN.","Das höchste Entscheidungsgremium der UN für internationale Sicherheit, mit 5 ständigen Mitgliedern.","Ein Beratungsorgan.","Ein internationales Gericht."],a:1},
+  {id:298,cat:"Natur & Umwelt",q:"Was ist das Bundesjagdgesetz?",opts:["Ein Tierschutzgesetz.","Das Gesetz, das die Jagd in Deutschland regelt.","Ein Naturschutzgesetz.","Ein Fischereiegesetz."],a:1},
+  {id:299,cat:"Wirtschaft",q:"Was ist eine Aktie?",opts:["Eine Staatsanleihe.","Ein Anteil an einem Unternehmen, der an der Börse gehandelt werden kann.","Eine Sparform.","Eine Kreditart."],a:1},
+  {id:300,cat:"Demokratie & Grundrechte",q:"Was ist das Konzept der \"wehrhaften Demokratie\" im Grundgesetz?",opts:["Deutschland darf keine Armee haben.","Die Demokratie kann sich gegen Feinde verteidigen — z.B. Parteien verboten werden, die die Demokratie abschaffen wollen.","Bürger dürfen die Demokratie nicht kritisieren.","Die Regierung kann Gesetze außer Kraft setzen."],a:1},
+];
+
+// ============================================================
+// STATE
+// ============================================================
+const state = {
+  results: JSON.parse(localStorage.getItem('lid_results') || '{}'),
+  queue: [],
+  qIdx: 0,
+  answered: false,
+  mode: 'all',
+  catFilter: 'all'
+};
+
+const CATS = [...new Set(QUESTIONS.map(q => q.cat))];
+
+function saveState() {
+  localStorage.setItem('lid_results', JSON.stringify(state.results));
+}
+
+// ============================================================
+// SCREENS
+// ============================================================
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  const tabs = ['study','browse','stats','info'];
+  document.querySelectorAll('.tab')[tabs.indexOf(name)].classList.add('active');
+  if (name === 'stats') renderStats();
+  if (name === 'browse') renderBrowse();
+}
+
+// ============================================================
+// STUDY
+// ============================================================
+function setMode(mode, btn) {
+  state.mode = mode;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  buildQueue();
+  state.qIdx = 0;
+  renderQuestion();
+}
+
+function buildQueue() {
+  let pool = [...QUESTIONS];
+  if (state.mode === 'wrong') pool = pool.filter(q => state.results[q.id] === false);
+  if (state.mode === 'unseen') pool = pool.filter(q => state.results[q.id] === undefined);
+  if (state.mode === 'random') {
+    pool = [...QUESTIONS].sort(() => Math.random() - 0.5).slice(0, 25);
+  }
+  if (pool.length === 0) pool = [...QUESTIONS];
+  state.queue = pool;
+}
+
+function renderQuestion() {
+  if (!state.queue.length) buildQueue();
+  const q = state.queue[state.qIdx];
+  state.answered = false;
+  const total = state.queue.length;
+  const pct = (state.qIdx / total) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${state.qIdx + 1} / ${total}`;
+
+  const opts = q.opts.map((o, i) => `
+    <li>
+      <button class="option-btn" onclick="selectAnswer(${i})" id="opt-${i}">
+        <span class="option-letter">${['A','B','C','D'][i]}</span>
+        <span>${o}</span>
+      </button>
+    </li>`).join('');
+
+  document.getElementById('study-area').innerHTML = `
+    <div class="q-card">
+      <div class="q-number">
+        <span>FRAGE ${q.id}</span>
+        <span class="q-category-tag">${q.cat}</span>
+      </div>
+      <div class="q-text">${q.q}</div>
+      <ul class="options-list">${opts}</ul>
+      <div class="result-area" id="result-area">
+        <div class="result-label">📖 Explanation (English)</div>
+        <div class="result-explanation" id="result-text"></div>
+      </div>
+      <div class="vocab-panel" id="vocab-panel">
+        <h4>📚 Key Vocabulary</h4>
+        <div id="vocab-content"></div>
+      </div>
+      <div class="action-row" id="action-row" style="display:none;">
+        <button class="btn btn-vocab" onclick="toggleVocab(${q.id})">📚 Vocabulary</button>
+        <button class="btn btn-ghost" onclick="getExplanation(${q.id})">↻ Re-explain</button>
+      </div>
+    </div>
+    <div class="nav-arrows">
+      <button class="arrow-btn" onclick="prevQ()" ${state.qIdx === 0 ? 'disabled' : ''}>←</button>
+      <span class="q-counter">${state.qIdx + 1} of ${total}</span>
+      <button class="arrow-btn" onclick="nextQ()">→</button>
+    </div>
+  `;
+}
+
+function selectAnswer(i) {
+  if (state.answered) return;
+  state.answered = true;
+  const q = state.queue[state.qIdx];
+  const correct = q.a === i;
+  state.results[q.id] = correct;
+  saveState();
+
+  document.querySelectorAll('.option-btn').forEach((btn, idx) => {
+    btn.disabled = true;
+    if (idx === q.a) btn.classList.add('correct');
+    if (idx === i && i !== q.a) btn.classList.add('wrong');
+  });
+
+  document.getElementById('result-area').classList.add('show');
+  document.getElementById('result-text').innerHTML = '<span class="loading">Getting explanation from AI…</span>';
+  document.getElementById('action-row').style.display = 'flex';
+  getExplanation(q.id);
+}
+
+let explCache = {};
+async function getExplanation(qid) {
+  const q = QUESTIONS.find(x => x.id === qid);
+  const textEl = document.getElementById('result-text');
+  if (explCache[qid]) { textEl.textContent = explCache[qid]; return; }
+  textEl.innerHTML = '<span class="loading">Getting explanation from AI…</span>';
+  try {
+    const prompt = `You are a helpful teacher for the German "Leben in Deutschland" / Einbürgerungstest. 
+Question (German): "${q.q}"
+Options: ${q.opts.map((o,i)=>String.fromCharCode(65+i)+') '+o).join(' | ')}
+Correct answer: ${String.fromCharCode(65+q.a)}) ${q.opts[q.a]}
+
+In 3-5 sentences in English: Explain why this answer is correct and give relevant background context about German law, society, history or politics. Be clear and educational.`;
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{role:'user', content: prompt}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(c => c.text || '').join('') || 'Could not load explanation.';
+    explCache[qid] = text;
+    textEl.textContent = text;
+  } catch(e) {
+    textEl.textContent = 'Could not load explanation (check internet connection).';
+  }
+}
+
+let vocabCache = {};
+async function toggleVocab(qid) {
+  const panel = document.getElementById('vocab-panel');
+  if (panel.classList.contains('show')) { panel.classList.remove('show'); return; }
+  panel.classList.add('show');
+  const content = document.getElementById('vocab-content');
+  if (vocabCache[qid]) { content.innerHTML = vocabCache[qid]; return; }
+  const q = QUESTIONS.find(x => x.id === qid);
+  content.innerHTML = '<div class="vocab-loading">Loading vocabulary…</div>';
+  try {
+    const prompt = `For this German "Leben in Deutschland" test question, identify 4-6 key German vocabulary words or phrases that are important for understanding:
+Question: "${q.q}"
+Answer: "${q.opts[q.a]}"
+
+Return ONLY a JSON array (no markdown, no extra text) like:
+[{"de": "Grundgesetz", "en": "Basic Law / Constitution of Germany"}, ...]`;
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{role:'user', content: prompt}]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.map(c => c.text || '').join('') || '[]';
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const vocab = JSON.parse(clean);
+    const html = vocab.map(v => `<div class="vocab-item"><div class="vocab-de">${v.de}</div><div class="vocab-en">${v.en}</div></div>`).join('');
+    vocabCache[qid] = html;
+    content.innerHTML = html;
+  } catch(e) {
+    content.innerHTML = '<div style="color:var(--muted);font-size:0.85rem;">Could not load vocabulary.</div>';
+  }
+}
+
+function nextQ() {
+  if (state.qIdx < state.queue.length - 1) {
+    state.qIdx++;
+  } else {
+    state.qIdx = 0;
+    if (state.mode === 'random') buildQueue();
+  }
+  renderQuestion();
+}
+function prevQ() {
+  if (state.qIdx > 0) { state.qIdx--; renderQuestion(); }
+}
+
+// ============================================================
+// BROWSE
+// ============================================================
+let catBrowseFilter = 'all';
+function setCatFilter(cat, btn) {
+  catBrowseFilter = cat;
+  document.querySelectorAll('#cat-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBrowse();
+}
+
+function renderBrowse() {
+  // Build category buttons once
+  const cf = document.getElementById('cat-filters');
+  if (cf.children.length <= 1) {
+    CATS.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn';
+      btn.textContent = cat.split(' ')[0];
+      btn.onclick = () => setCatFilter(cat, btn);
+      cf.appendChild(btn);
+    });
+  }
+  const search = document.getElementById('search-input').value.toLowerCase();
+  let pool = QUESTIONS;
+  if (catBrowseFilter !== 'all') pool = pool.filter(q => q.cat === catBrowseFilter);
+  if (search) pool = pool.filter(q => q.q.toLowerCase().includes(search) || q.opts.some(o => o.toLowerCase().includes(search)));
+  const html = pool.slice(0, 50).map(q => {
+    const r = state.results[q.id];
+    const badge = r === true ? '<span class="badge badge-correct">✓ Correct</span>' : r === false ? '<span class="badge badge-wrong">✗ Wrong</span>' : '<span class="badge badge-unseen">New</span>';
+    return `<div class="q-card" style="cursor:pointer;" onclick="goToQuestion(${q.id})">
+      <div class="q-number"><span>Q${q.id}</span>${badge}</div>
+      <div class="q-text" style="font-size:0.9rem;margin-bottom:0;">${q.q}</div>
+    </div>`;
+  }).join('') || '<div class="empty-state">No questions found.</div>';
+  document.getElementById('browse-list').innerHTML = html;
+}
+
+function goToQuestion(id) {
+  const idx = QUESTIONS.findIndex(q => q.id === id);
+  state.mode = 'all';
+  state.queue = [...QUESTIONS];
+  state.qIdx = idx;
+  showScreen('study');
+  renderQuestion();
+  document.querySelectorAll('.filter-btn')[0].click();
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function renderStats() {
+  const keys = Object.keys(state.results);
+  const correct = keys.filter(k => state.results[k] === true).length;
+  const wrong = keys.filter(k => state.results[k] === false).length;
+  document.getElementById('s-correct').textContent = correct;
+  document.getElementById('s-wrong').textContent = wrong;
+  document.getElementById('s-seen').textContent = keys.length;
+  document.getElementById('s-pct').textContent = keys.length > 0 ? Math.round(correct/keys.length*100)+'%' : '—';
+
+  const catHTML = CATS.map(cat => {
+    const qs = QUESTIONS.filter(q => q.cat === cat);
+    const seen = qs.filter(q => state.results[q.id] !== undefined).length;
+    const cor = qs.filter(q => state.results[q.id] === true).length;
+    return `<div class="cat-row">
+      <span class="cat-row-name">${cat}</span>
+      <span class="cat-row-score">${cor}/${qs.length}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('cat-stats').innerHTML = catHTML;
+}
+
+function resetProgress() {
+  if (confirm('Reset all study progress?')) {
+    state.results = {};
+    localStorage.removeItem('lid_results');
+    explCache = {};
+    vocabCache = {};
+    renderStats();
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+buildQueue();
+renderQuestion();
+</script>
+</body>
+</html>
